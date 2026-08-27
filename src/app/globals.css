@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  /* Same palette as the public shine-ministries site, so this feels like the
+     same brand — trimmed to the tokens the office app actually uses. */
+  --color-cream: #fbf7f0;
+  --color-cream-soft: #f6efe3;
+
+  --color-terracotta: #c15f3b;
+  --color-terracotta-dark: #9c4a2c;
+  --color-terracotta-light: #e3b7a0;
+
+  --color-sage: #93a17e;
+  --color-sage-dark: #6e7d5c;
+  --color-sage-light: #c7d0b9;
+
+  --color-lavender: #a89bc4;
+  --color-lavender-dark: #8574a3;
+
+  --color-clay-900: #453a2f;
+  --color-clay-700: #6b5c4c;
+  --color-clay-500: #8c7c6a;
+  --color-white: #ffffff;
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-cream-soft: var(--color-cream-soft);
+  --color-terracotta: var(--color-terracotta);
+  --color-terracotta-dark: var(--color-terracotta-dark);
+  --color-terracotta-light: var(--color-terracotta-light);
+  --color-sage: var(--color-sage);
+  --color-sage-dark: var(--color-sage-dark);
+  --color-sage-light: var(--color-sage-light);
+  --color-lavender: var(--color-lavender);
+  --color-lavender-dark: var(--color-lavender-dark);
+  --color-clay-900: var(--color-clay-900);
+  --color-clay-700: var(--color-clay-700);
+  --color-clay-500: var(--color-clay-500);
+
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+}
+
+body {
+  background: var(--color-cream-soft);
+  color: var(--color-clay-900);
+  font-family: var(--font-sans);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
