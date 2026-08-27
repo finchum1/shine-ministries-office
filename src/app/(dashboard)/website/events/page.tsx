@@ -3,6 +3,11 @@ import { createClient } from "@/lib/supabase/server";
 import type { EventRow } from "@/lib/supabase-types";
 import { deleteEvent } from "./actions";
 
+function formatDate(dateStr: string) {
+  const [year, month, day] = dateStr.split("-");
+  return `${month}-${day}-${year}`;
+}
+
 export default async function EventsPage() {
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -51,7 +56,7 @@ export default async function EventsPage() {
               <tr key={event.id}>
                 <td className="px-5 py-3 font-medium text-clay-900">{event.title}</td>
                 <td className="px-5 py-3 text-clay-700">
-                  {event.event_date}
+                  {formatDate(event.event_date)}
                   {event.date_tbd ? " (TBD)" : ""}
                 </td>
                 <td className="px-5 py-3 text-clay-700 capitalize">{event.highlight ?? "—"}</td>

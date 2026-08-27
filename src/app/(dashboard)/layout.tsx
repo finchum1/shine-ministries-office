@@ -7,9 +7,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
     data: { user },
   } = await supabase.auth.getUser();
 
+  const avatarUrl = (user?.user_metadata?.avatar_url as string | undefined) ?? null;
+
   return (
     <div className="flex min-h-screen">
-      <LeftNav email={user?.email ?? null} />
+      <LeftNav email={user?.email ?? null} avatarUrl={avatarUrl} />
       <main className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-5xl px-8 py-10">{children}</div>
       </main>

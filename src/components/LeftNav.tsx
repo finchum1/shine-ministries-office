@@ -19,12 +19,19 @@ function itemClass(active: boolean) {
   }`;
 }
 
-export function LeftNav({ email }: { email: string | null }) {
+export function LeftNav({
+  email,
+  avatarUrl,
+}: {
+  email: string | null;
+  avatarUrl: string | null;
+}) {
   const pathname = usePathname();
   const initial = email ? email[0].toUpperCase() : "?";
+  const settingsActive = pathname.startsWith("/settings");
 
   return (
-    <nav className="flex h-full w-64 shrink-0 flex-col border-r border-clay-900/8 bg-white">
+    <nav className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-clay-900/8 bg-white">
       <Link
         href="/website/events"
         className="flex items-center gap-2.5 border-b border-clay-900/8 px-5 py-5"
@@ -35,7 +42,7 @@ export function LeftNav({ email }: { email: string | null }) {
           width={1000}
           height={517}
           priority
-          className="h-8 w-auto"
+          className="h-10 w-auto"
         />
         <span className="h-4 w-px bg-clay-900/15" />
         <span className="text-xs font-semibold uppercase tracking-[0.2em] text-clay-500">
@@ -77,15 +84,25 @@ export function LeftNav({ email }: { email: string | null }) {
       </div>
 
       <div className="border-t border-clay-900/8 px-5 py-4">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage/20 text-sm font-semibold text-sage-dark">
-            {initial}
+        <Link
+          href="/settings"
+          className={`-mx-2 flex items-center gap-3 rounded-lg px-2 py-1.5 transition-colors ${
+            settingsActive ? "bg-clay-900/8" : "hover:bg-clay-900/5"
+          }`}
+        >
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sage/20 text-sm font-semibold text-sage-dark">
+            {avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- small nav avatar, arbitrary user upload
+              <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              initial
+            )}
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-clay-900">{email ?? "Signed in"}</p>
             <p className="text-xs font-bold uppercase tracking-wide text-terracotta-dark">Admin</p>
           </div>
-        </div>
+        </Link>
         <div className="mt-3">
           <SignOutButton />
         </div>
