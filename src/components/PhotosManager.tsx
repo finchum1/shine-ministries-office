@@ -23,6 +23,8 @@ export function PhotosManager({
   const [founderPhoto, setFounderPhoto] = useState(initialFounderPhoto);
   const [busy, setBusy] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const groupInputRef = useRef<HTMLInputElement>(null);
   const founderInputRef = useRef<HTMLInputElement>(null);
 
@@ -93,6 +95,37 @@ export function PhotosManager({
     }
   }
 
+  async function handleDrop(dropIndex: number) {
+    setDragOverIndex(null);
+    const fromIndex = dragIndex;
+    setDragIndex(null);
+    if (fromIndex === null || fromIndex === dropIndex) return;
+
+    const reordered = [...groupPhotos];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(dropIndex, 0, moved);
+    setGroupPhotos(reordered);
+
+    setBusy(true);
+    setErrorMessage(null);
+    try {
+      const changed = reordered
+        .map((photo, index) => ({ photo, index }))
+        .filter(({ photo, index }) => photo.sort_order !== index);
+
+      for (const { photo, index } of changed) {
+        const { error } = await supabase.from("photos").update({ sort_order: index }).eq("id", photo.id);
+        if (error) throw error;
+      }
+
+      router.refresh();
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Reorder failed.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function handleDeleteGroupPhoto(photo: PhotoRow) {
     setBusy(true);
     setErrorMessage(null);
@@ -144,7 +177,9 @@ export function PhotosManager({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-display text-lg text-clay-900">Group photos</h2>
-            <p className="mt-1 text-sm text-clay-700">The photo grid on the About page.</p>
+            <p className="mt-1 text-sm text-clay-700">
+              The photo grid on the About page. Drag to reorder.
+            </p>
           </div>
           <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark">
             {busy ? "Working…" : "Add photos"}
@@ -161,10 +196,35 @@ export function PhotosManager({
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-6">
-          {groupPhotos.map((photo) => (
-            <div key={photo.id} className="group relative aspect-square overflow-hidden rounded-xl bg-cream-soft ring-1 ring-clay-900/5">
+          {groupPhotos.map((photo, index) => (
+            <div
+              key={photo.id}
+              draggable
+              onDragStart={() => setDragIndex(index)}
+              onDragEnter={() => setDragOverIndex(index)}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnd={() => {
+                setDragIndex(null);
+                setDragOverIndex(null);
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                handleDrop(index);
+              }}
+              className={`group relative aspect-square cursor-grab overflow-hidden rounded-xl bg-cream-soft ring-1 ring-clay-900/5 transition-shadow active:cursor-grabbing ${
+                dragOverIndex === index && dragIndex !== index ? "ring-2 ring-terracotta" : ""
+              } ${dragIndex === index ? "opacity-40" : ""}`}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element -- admin-only preview, not the public site */}
-              <img src={photo.url} alt="" className="h-full w-full object-cover" />
+              <img
+                src={photo.url}
+                alt=""
+                draggable={false}
+                className="h-full w-full object-cover"
+              />
+              <div className="pointer-events-none absolute left-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-clay-500 opacity-0 shadow-sm transition-opacity group-hover:opacity-100">
+                ⠿
+              </div>
               <button
                 onClick={() => handleDeleteGroupPhoto(photo)}
                 disabled={busy}
