@@ -18,6 +18,10 @@ export const metadata: Metadata = {
   title: "Shine Ministries — Office",
   description: "Back office for editing the Shine Ministries website.",
   robots: { index: false, follow: false },
+  icons: {
+    icon: "https://www.shineministriesok.com/icon.png",
+    shortcut: "https://www.shineministriesok.com/favicon.ico",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

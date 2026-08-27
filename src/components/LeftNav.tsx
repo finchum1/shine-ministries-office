@@ -11,25 +11,41 @@ const websiteLinks = [
   { href: "/website/photos", label: "Photos" },
 ];
 
-export function LeftNav() {
+function itemClass(active: boolean) {
+  return `block rounded-lg px-3 py-2 text-sm transition-colors ${
+    active
+      ? "bg-clay-900/8 font-semibold text-clay-900"
+      : "font-medium text-clay-700 hover:bg-clay-900/5"
+  }`;
+}
+
+export function LeftNav({ email }: { email: string | null }) {
   const pathname = usePathname();
+  const initial = email ? email[0].toUpperCase() : "?";
 
   return (
-    <nav className="flex h-full w-64 shrink-0 flex-col border-r border-clay-900/8 bg-white px-4 py-6">
-      <Link href="/website/events" className="flex items-center justify-center px-2">
+    <nav className="flex h-full w-64 shrink-0 flex-col border-r border-clay-900/8 bg-white">
+      <Link
+        href="/website/events"
+        className="flex items-center gap-2.5 border-b border-clay-900/8 px-5 py-5"
+      >
         <Image
-          src="/brand/shine-logo.png"
+          src="https://www.shineministriesok.com/brand/shine-logo.png"
           alt="Shine Ministries"
           width={1000}
           height={517}
           priority
-          className="h-12 w-auto"
+          className="h-8 w-auto"
         />
+        <span className="h-4 w-px bg-clay-900/15" />
+        <span className="text-xs font-semibold uppercase tracking-[0.2em] text-clay-500">
+          Office
+        </span>
       </Link>
 
-      <div className="mt-8 flex-1 space-y-6 overflow-y-auto">
+      <div className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
         <div>
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[0.15em] text-clay-500">
+          <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-[0.15em] text-clay-500">
             Website
           </p>
           <ul className="space-y-0.5">
@@ -37,12 +53,7 @@ export function LeftNav() {
               const active = pathname.startsWith(item.href);
               return (
                 <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                      active ? "bg-sage/15 text-sage-dark" : "text-clay-700 hover:bg-clay-900/5"
-                    }`}
-                  >
+                  <Link href={item.href} className={itemClass(active)}>
                     {item.label}
                   </Link>
                 </li>
@@ -52,19 +63,12 @@ export function LeftNav() {
         </div>
 
         <div>
-          <p className="mb-2 px-3 text-xs font-semibold uppercase tracking-[0.15em] text-clay-500">
+          <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-[0.15em] text-clay-500">
             Brand
           </p>
           <ul className="space-y-0.5">
             <li>
-              <Link
-                href="/brand"
-                className={`block rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                  pathname.startsWith("/brand")
-                    ? "bg-sage/15 text-sage-dark"
-                    : "text-clay-700 hover:bg-clay-900/5"
-                }`}
-              >
+              <Link href="/brand" className={itemClass(pathname.startsWith("/brand"))}>
                 Logos, colors &amp; type
               </Link>
             </li>
@@ -72,8 +76,19 @@ export function LeftNav() {
         </div>
       </div>
 
-      <div className="border-t border-clay-900/8 pt-4">
-        <SignOutButton />
+      <div className="border-t border-clay-900/8 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sage/20 text-sm font-semibold text-sage-dark">
+            {initial}
+          </div>
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-clay-900">{email ?? "Signed in"}</p>
+            <p className="text-xs font-bold uppercase tracking-wide text-terracotta-dark">Admin</p>
+          </div>
+        </div>
+        <div className="mt-3">
+          <SignOutButton />
+        </div>
       </div>
     </nav>
   );

@@ -7,7 +7,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm rounded-3xl bg-white p-8 shadow-sm ring-1 ring-clay-900/5 sm:p-10">
         <div className="flex justify-center">
           <Image
-            src="/brand/shine-logo.png"
+            src="https://www.shineministriesok.com/brand/shine-logo.png"
             alt="Shine Ministries"
             width={1000}
             height={517}
