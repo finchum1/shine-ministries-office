@@ -8,7 +8,9 @@ import { SignOutButton } from "./SignOutButton";
 const websiteLinks = [
   { href: "/website/events", label: "Events" },
   { href: "/website/bible-studies", label: "Bible Studies" },
+  { href: "/website/serving", label: "Serving Opportunities" },
   { href: "/website/photos", label: "Photos" },
+  { href: "/website/content", label: "Content" },
 ];
 
 function itemClass(active: boolean) {

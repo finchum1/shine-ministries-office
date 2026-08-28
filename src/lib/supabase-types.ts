@@ -39,3 +39,24 @@ export type PhotoRow = {
   sort_order: number;
   created_at: string;
 };
+
+export type ServingOpportunityRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
+// site_settings is a generic key/value store — these are the shapes for the
+// keys the Content editor manages. Mirrors src/lib/settings.ts in the main
+// shine-ministries repo.
+export type VerseContent = { text: string; reference: string };
+export type FounderContent = { name: string; role: string; bio: string[] };
+export type ContactContent = {
+  email: string;
+  social: { instagram: string; facebook: string };
+  serviceArea: string[];
+  ageNote: string;
+};
+export type FooterContent = { tagline: string };
