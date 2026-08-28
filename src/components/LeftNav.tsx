@@ -27,6 +27,10 @@ const sections: NavSectionConfig[] = [
     label: "Brand",
     links: [{ href: "/brand", label: "Logos, colors & type" }],
   },
+  {
+    label: "Files",
+    links: [{ href: "/files", label: "All Files" }],
+  },
 ];
 
 function itemClass(active: boolean) {

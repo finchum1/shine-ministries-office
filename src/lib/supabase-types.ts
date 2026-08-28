@@ -49,6 +49,25 @@ export type BrandAssetRow = {
   created_at: string;
 };
 
+export type FolderRow = {
+  id: string;
+  name: string;
+  parent_id: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
+export type FileRow = {
+  id: string;
+  folder_id: string | null;
+  name: string;
+  path: string;
+  size_bytes: number | null;
+  content_type: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 export type ServingOpportunityRow = {
   id: string;
   title: string;
