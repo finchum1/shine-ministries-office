@@ -16,14 +16,12 @@ function AssetGroup({
   assets,
   busy,
   onUpload,
-  onDelete,
 }: {
   title: string;
   hint: string;
   assets: BrandAssetRow[];
   busy: boolean;
   onUpload: (files: FileList | null) => void;
-  onDelete: (asset: BrandAssetRow) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -55,7 +53,7 @@ function AssetGroup({
         {assets.map((asset) => (
           <div
             key={asset.id}
-            className="group relative overflow-hidden rounded-xl bg-cream-soft ring-1 ring-clay-900/5"
+            className="overflow-hidden rounded-xl bg-cream-soft ring-1 ring-clay-900/5"
           >
             <div className="flex aspect-square items-center justify-center p-4">
               {/* eslint-disable-next-line @next/next/no-img-element -- admin-only preview, arbitrary size/format */}
@@ -64,14 +62,6 @@ function AssetGroup({
             <p className="truncate border-t border-clay-900/8 bg-white px-2.5 py-1.5 text-xs text-clay-700">
               {asset.label ?? "Untitled"}
             </p>
-            <button
-              onClick={() => onDelete(asset)}
-              disabled={busy}
-              className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-clay-700 opacity-0 shadow-sm transition-opacity hover:text-terracotta-dark group-hover:opacity-100"
-              aria-label="Delete asset"
-            >
-              ×
-            </button>
           </div>
         ))}
         {assets.length === 0 && (
@@ -139,23 +129,6 @@ export function BrandAssetsManager({
     }
   }
 
-  async function handleDelete(category: "logo" | "icon", asset: BrandAssetRow) {
-    setBusy(true);
-    setErrorMessage(null);
-    try {
-      const { error } = await supabase.from("brand_assets").delete().eq("id", asset.id);
-      if (error) throw error;
-
-      if (category === "logo") setLogos((prev) => prev.filter((a) => a.id !== asset.id));
-      else setIcons((prev) => prev.filter((a) => a.id !== asset.id));
-      router.refresh();
-    } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Delete failed.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <div className="space-y-10">
       {errorMessage && (
@@ -170,7 +143,6 @@ export function BrandAssetsManager({
         assets={logos}
         busy={busy}
         onUpload={(files) => handleUpload("logo", files)}
-        onDelete={(asset) => handleDelete("logo", asset)}
       />
 
       <AssetGroup
@@ -179,7 +151,6 @@ export function BrandAssetsManager({
         assets={icons}
         busy={busy}
         onUpload={(files) => handleUpload("icon", files)}
-        onDelete={(asset) => handleDelete("icon", asset)}
       />
     </div>
   );
