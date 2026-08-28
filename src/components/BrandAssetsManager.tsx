@@ -10,6 +10,42 @@ function slugFileName(file: File) {
   return `${crypto.randomUUID()}.${ext}`;
 }
 
+function downloadFileName(asset: BrandAssetRow) {
+  const ext = asset.url.split(".").pop()?.split("?")[0] || "png";
+  const base = (asset.label || "shine-brand-asset")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return `${base || "shine-brand-asset"}.${ext}`;
+}
+
+function DownloadIcon() {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+      <path d="M10 2.5a.75.75 0 0 1 .75.75v8.19l2.72-2.72a.75.75 0 1 1 1.06 1.06l-4 4a.75.75 0 0 1-1.06 0l-4-4a.75.75 0 1 1 1.06-1.06l2.72 2.72V3.25A.75.75 0 0 1 10 2.5Z" />
+      <path d="M3.5 13.25a.75.75 0 0 1 .75.75v1.5c0 .414.336.75.75.75h10a.75.75 0 0 0 .75-.75v-1.5a.75.75 0 0 1 1.5 0v1.5A2.25 2.25 0 0 1 15 18H5a2.25 2.25 0 0 1-2.25-2.25v-1.5a.75.75 0 0 1 .75-.75Z" />
+    </svg>
+  );
+}
+
+async function downloadAsset(asset: BrandAssetRow) {
+  // Fetch as a blob rather than a plain <a download> link -- these assets are
+  // served cross-origin (Supabase Storage or the main site's own domain),
+  // and browsers generally ignore the download attribute on cross-origin
+  // anchors, just opening the image instead of saving it. A blob: URL is
+  // always same-origin, so download is honored reliably every time.
+  const res = await fetch(asset.url);
+  const blob = await res.blob();
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = blobUrl;
+  a.download = downloadFileName(asset);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(blobUrl);
+}
+
 function AssetGroup({
   title,
   hint,
@@ -59,9 +95,20 @@ function AssetGroup({
               {/* eslint-disable-next-line @next/next/no-img-element -- admin-only preview, arbitrary size/format */}
               <img src={asset.url} alt={asset.label ?? title} className="max-h-full max-w-full object-contain" />
             </div>
-            <p className="truncate border-t border-clay-900/8 bg-white px-2.5 py-1.5 text-xs text-clay-700">
-              {asset.label ?? "Untitled"}
-            </p>
+            <div className="flex items-center justify-between gap-2 border-t border-clay-900/8 bg-white px-2.5 py-1.5">
+              <p className="min-w-0 flex-1 truncate text-xs text-clay-700">
+                {asset.label ?? "Untitled"}
+              </p>
+              <button
+                type="button"
+                onClick={() => downloadAsset(asset)}
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-clay-500 transition-colors hover:bg-clay-900/5 hover:text-terracotta-dark"
+                aria-label={`Download ${asset.label ?? title}`}
+                title="Download PNG"
+              >
+                <DownloadIcon />
+              </button>
+            </div>
           </div>
         ))}
         {assets.length === 0 && (
