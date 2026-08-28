@@ -3,14 +3,30 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { SignOutButton } from "./SignOutButton";
 
-const websiteLinks = [
-  { href: "/website/events", label: "Events" },
-  { href: "/website/bible-studies", label: "Bible Studies" },
-  { href: "/website/serving", label: "Serving Opportunities" },
-  { href: "/website/photos", label: "Photos" },
-  { href: "/website/content", label: "Content" },
+type NavLink = { href: string; label: string };
+type NavSectionConfig = { label: string; links: NavLink[] };
+
+// Add future modules as another entry here — each one gets its own
+// collapsible group in the nav, so the sidebar stays navigable as more
+// modules are added instead of turning into one long flat list.
+const sections: NavSectionConfig[] = [
+  {
+    label: "Website",
+    links: [
+      { href: "/website/events", label: "Events" },
+      { href: "/website/bible-studies", label: "Bible Studies" },
+      { href: "/website/serving", label: "Serving Opportunities" },
+      { href: "/website/photos", label: "Photos" },
+      { href: "/website/content", label: "Content" },
+    ],
+  },
+  {
+    label: "Brand",
+    links: [{ href: "/brand", label: "Logos, colors & type" }],
+  },
 ];
 
 function itemClass(active: boolean) {
@@ -19,6 +35,60 @@ function itemClass(active: boolean) {
       ? "bg-clay-900/8 font-semibold text-clay-900"
       : "font-medium text-clay-700 hover:bg-clay-900/5"
   }`;
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      fill="currentColor"
+      className={`h-3.5 w-3.5 shrink-0 text-clay-400 transition-transform duration-150 ${
+        open ? "rotate-90" : ""
+      }`}
+    >
+      <path d="M7.5 4.5a1 1 0 0 1 1.6-.8l5 4.5a1 1 0 0 1 0 1.6l-5 4.5a1 1 0 0 1-1.6-.8V4.5z" />
+    </svg>
+  );
+}
+
+function NavSection({
+  section,
+  pathname,
+  defaultOpen,
+}: {
+  section: NavSectionConfig;
+  pathname: string;
+  defaultOpen: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-clay-500 transition-colors hover:bg-clay-900/5 hover:text-clay-700"
+        aria-expanded={open}
+      >
+        <span>{section.label}</span>
+        <ChevronIcon open={open} />
+      </button>
+      {open && (
+        <ul className="mt-1 space-y-0.5">
+          {section.links.map((item) => {
+            const active = pathname.startsWith(item.href);
+            return (
+              <li key={item.href}>
+                <Link href={item.href} className={itemClass(active)}>
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 export function LeftNav({
@@ -31,6 +101,8 @@ export function LeftNav({
   const pathname = usePathname();
   const initial = email ? email[0].toUpperCase() : "?";
   const settingsActive = pathname.startsWith("/settings");
+
+  const activeSection = sections.find((s) => s.links.some((l) => pathname.startsWith(l.href)));
 
   return (
     <nav className="sticky top-0 flex h-screen w-64 shrink-0 flex-col border-r border-clay-900/8 bg-white">
@@ -52,37 +124,17 @@ export function LeftNav({
         </span>
       </Link>
 
-      <div className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-        <div>
-          <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-[0.15em] text-clay-500">
-            Website
-          </p>
-          <ul className="space-y-0.5">
-            {websiteLinks.map((item) => {
-              const active = pathname.startsWith(item.href);
-              return (
-                <li key={item.href}>
-                  <Link href={item.href} className={itemClass(active)}>
-                    {item.label}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-
-        <div>
-          <p className="mb-1 px-3 text-xs font-semibold uppercase tracking-[0.15em] text-clay-500">
-            Brand
-          </p>
-          <ul className="space-y-0.5">
-            <li>
-              <Link href="/brand" className={itemClass(pathname.startsWith("/brand"))}>
-                Logos, colors &amp; type
-              </Link>
-            </li>
-          </ul>
-        </div>
+      <div className="flex-1 space-y-1 overflow-y-auto px-3 py-5">
+        {sections.map((section) => (
+          <NavSection
+            key={section.label}
+            section={section}
+            pathname={pathname}
+            defaultOpen={
+              activeSection ? section.label === activeSection.label : section === sections[0]
+            }
+          />
+        ))}
       </div>
 
       <div className="border-t border-clay-900/8 px-5 py-4">
