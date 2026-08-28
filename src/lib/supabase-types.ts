@@ -40,6 +40,15 @@ export type PhotoRow = {
   created_at: string;
 };
 
+export type BrandAssetRow = {
+  id: string;
+  category: "logo" | "icon";
+  label: string | null;
+  url: string;
+  sort_order: number;
+  created_at: string;
+};
+
 export type ServingOpportunityRow = {
   id: string;
   title: string;
