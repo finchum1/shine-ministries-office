@@ -1,3 +1,0 @@
-module.exports=[50986,a=>{"use strict";var b=a.i(62104);a.s([],57004),a.i(57004),a.s(["40c156756b30ed26f397a3983ddf688659141b7dc9",()=>b.createBibleStudy,"40f56fcb210b1aa797f14717b69bc9dfb0634f9e03",()=>b.deleteBibleStudy,"601ac4b24a6ed2534e971b6a076fd2b1c1d3a23f9a",()=>b.updateBibleStudy],50986)}];
-
-//# sourceMappingURL=1oeh_server_app_%28dashboard%29_website_bible-studies_new_page_actions_1m_uu_s.js.map
