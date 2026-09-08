@@ -1,0 +1,38 @@
+{
+  "node": {
+    "60736d52abf59848f9d24c6f8b45a8ebe8a325defc": {
+      "workers": {
+        "app/(dashboard)/files/page": {
+          "moduleId": 71159,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "createFolder",
+      "filename": "src/app/(dashboard)/files/actions.ts"
+    },
+    "404362391992e57e16a46bf45749fbfabdb40a9875": {
+      "workers": {
+        "app/(dashboard)/files/page": {
+          "moduleId": 71159,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "deleteFolder",
+      "filename": "src/app/(dashboard)/files/actions.ts"
+    },
+    "60846752e7b3a21602804cb94e174d4be99b5a4d8a": {
+      "workers": {
+        "app/(dashboard)/files/page": {
+          "moduleId": 71159,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "deleteFile",
+      "filename": "src/app/(dashboard)/files/actions.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,22 @@
+{
+  "/(dashboard)/brand/page": "app/(dashboard)/brand/page.js",
+  "/(dashboard)/files/page": "app/(dashboard)/files/page.js",
+  "/(dashboard)/settings/page": "app/(dashboard)/settings/page.js",
+  "/(dashboard)/website/bible-studies/[id]/page": "app/(dashboard)/website/bible-studies/[id]/page.js",
+  "/(dashboard)/website/bible-studies/new/page": "app/(dashboard)/website/bible-studies/new/page.js",
+  "/(dashboard)/website/bible-studies/page": "app/(dashboard)/website/bible-studies/page.js",
+  "/(dashboard)/website/content/page": "app/(dashboard)/website/content/page.js",
+  "/(dashboard)/website/events/[id]/page": "app/(dashboard)/website/events/[id]/page.js",
+  "/(dashboard)/website/events/new/page": "app/(dashboard)/website/events/new/page.js",
+  "/(dashboard)/website/events/page": "app/(dashboard)/website/events/page.js",
+  "/(dashboard)/website/photos/page": "app/(dashboard)/website/photos/page.js",
+  "/(dashboard)/website/serving/[id]/page": "app/(dashboard)/website/serving/[id]/page.js",
+  "/(dashboard)/website/serving/new/page": "app/(dashboard)/website/serving/new/page.js",
+  "/(dashboard)/website/serving/page": "app/(dashboard)/website/serving/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/icon.png/route": "app/icon.png/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js"
+}

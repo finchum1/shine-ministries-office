@@ -1,0 +1,16 @@
+{
+  "/(dashboard)/brand/page": "/brand",
+  "/(dashboard)/website/bible-studies/[id]/page": "/website/bible-studies/[id]",
+  "/(dashboard)/website/bible-studies/new/page": "/website/bible-studies/new",
+  "/(dashboard)/website/bible-studies/page": "/website/bible-studies",
+  "/(dashboard)/website/events/[id]/page": "/website/events/[id]",
+  "/(dashboard)/website/events/new/page": "/website/events/new",
+  "/(dashboard)/website/events/page": "/website/events",
+  "/(dashboard)/website/photos/page": "/website/photos",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/icon.png/route": "/icon.png",
+  "/login/page": "/login",
+  "/page": "/"
+}

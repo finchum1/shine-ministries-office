@@ -66,6 +66,7 @@ export function FilesManager({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const breadcrumb: FolderRow[] = [];
@@ -144,6 +145,7 @@ export function FilesManager({
       setErrorMessage(err instanceof Error ? err.message : "Couldn't delete folder.");
     } finally {
       setBusy(false);
+      setConfirmingId(null);
     }
   }
 
@@ -157,6 +159,7 @@ export function FilesManager({
       setErrorMessage(err instanceof Error ? err.message : "Couldn't delete file.");
     } finally {
       setBusy(false);
+      setConfirmingId(null);
     }
   }
 
@@ -257,13 +260,33 @@ export function FilesManager({
                 </td>
                 <td className="px-5 py-3 text-clay-500">—</td>
                 <td className="px-5 py-3 text-right">
-                  <button
-                    onClick={() => handleDeleteFolder(folder)}
-                    disabled={busy}
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                  >
-                    Delete
-                  </button>
+                  {confirmingId === folder.id ? (
+                    <span className="inline-flex items-center gap-3">
+                      <span className="text-sm text-clay-500">Delete this folder?</span>
+                      <button
+                        onClick={() => handleDeleteFolder(folder)}
+                        disabled={busy}
+                        className="text-sm font-semibold text-terracotta-dark hover:underline"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={() => setConfirmingId(null)}
+                        disabled={busy}
+                        className="text-sm font-medium text-clay-500 hover:text-clay-900"
+                      >
+                        Cancel
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmingId(folder.id)}
+                      disabled={busy}
+                      className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -284,13 +307,33 @@ export function FilesManager({
                     <DownloadIcon />
                     Download
                   </button>
-                  <button
-                    onClick={() => handleDeleteFile(file)}
-                    disabled={busy}
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                  >
-                    Delete
-                  </button>
+                  {confirmingId === file.id ? (
+                    <span className="inline-flex items-center gap-3">
+                      <span className="text-sm text-clay-500">Delete this file?</span>
+                      <button
+                        onClick={() => handleDeleteFile(file)}
+                        disabled={busy}
+                        className="text-sm font-semibold text-terracotta-dark hover:underline"
+                      >
+                        Confirm
+                      </button>
+                      <button
+                        onClick={() => setConfirmingId(null)}
+                        disabled={busy}
+                        className="text-sm font-medium text-clay-500 hover:text-clay-900"
+                      >
+                        Cancel
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      onClick={() => setConfirmingId(file.id)}
+                      disabled={busy}
+                      className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

@@ -1,0 +1,38 @@
+{
+  "node": {
+    "40353fa0665ab56d3c8000f9e4ffba00bc767668c9": {
+      "workers": {
+        "app/(dashboard)/website/events/page": {
+          "moduleId": 17618,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "deleteEvent",
+      "filename": "src/app/(dashboard)/website/events/actions.ts"
+    },
+    "40a2044ddf82f47f1f934c16252aa365745c1f8b9e": {
+      "workers": {
+        "app/(dashboard)/website/events/page": {
+          "moduleId": 17618,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "createEvent",
+      "filename": "src/app/(dashboard)/website/events/actions.ts"
+    },
+    "6065cbd3f9915600c225656ed0d58754bd43a53914": {
+      "workers": {
+        "app/(dashboard)/website/events/page": {
+          "moduleId": 17618,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "updateEvent",
+      "filename": "src/app/(dashboard)/website/events/actions.ts"
+    }
+  },
+  "edge": {}
+}

@@ -1,0 +1,16 @@
+{
+  "node": {
+    "40196431578ade723bd765e093f5e538c8c7ba89ea": {
+      "workers": {
+        "app/(dashboard)/website/content/page": {
+          "moduleId": 47484,
+          "async": false,
+          "codeHash": null
+        }
+      },
+      "exportedName": "updateSiteContent",
+      "filename": "src/app/(dashboard)/website/content/actions.ts"
+    }
+  },
+  "edge": {}
+}
