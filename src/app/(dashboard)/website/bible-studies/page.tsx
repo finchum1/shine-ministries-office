@@ -33,7 +33,8 @@ export default async function BibleStudiesPage() {
         </p>
       )}
 
-      <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-clay-900/5">
+      {/* Desktop / wide screens: table. */}
+      <div className="mt-8 hidden overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-clay-900/5 md:block">
         <table className="w-full text-left text-sm">
           <thead className="bg-cream-soft text-xs font-semibold uppercase tracking-wide text-clay-500">
             <tr>
@@ -90,6 +91,55 @@ export default async function BibleStudiesPage() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Small screens: cards -- a five-column table doesn't fit a phone. */}
+      <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-clay-900/5 md:hidden">
+        <ul className="divide-y divide-clay-900/8">
+          {studies.map((study) => (
+            <li key={study.id} className="p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="font-medium text-clay-900">{study.title}</p>
+                  <p className="mt-1 text-sm text-clay-700">
+                    {[study.day_of_week, study.meeting_time].filter(Boolean).join(" · ") || "—"}
+                  </p>
+                  {study.leader_name && (
+                    <p className="mt-1 text-sm text-clay-500">Leader: {study.leader_name}</p>
+                  )}
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
+                    study.is_active
+                      ? "bg-sage/15 text-sage-dark"
+                      : "bg-clay-900/8 text-clay-500"
+                  }`}
+                >
+                  {study.is_active ? "Active" : "Inactive"}
+                </span>
+              </div>
+              <div className="mt-3 flex items-center gap-4 border-t border-clay-900/8 pt-3">
+                <Link
+                  href={`/website/bible-studies/${study.id}`}
+                  className="text-sm font-medium text-terracotta-dark hover:underline"
+                >
+                  Edit
+                </Link>
+                <form action={deleteBibleStudy.bind(null, study.id)}>
+                  <button
+                    type="submit"
+                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                  >
+                    Delete
+                  </button>
+                </form>
+              </div>
+            </li>
+          ))}
+          {studies.length === 0 && !error && (
+            <li className="px-5 py-8 text-center text-clay-500">No Bible studies yet.</li>
+          )}
+        </ul>
       </div>
     </div>
   );
