@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { ServingOpportunityRow } from "@/lib/supabase-types";
+import { EditDeleteActions } from "@/components/EditDeleteActions";
 import { deleteServingOpportunity } from "./actions";
 
 export default async function ServingPage() {
@@ -53,20 +54,12 @@ export default async function ServingPage() {
                 </td>
                 <td className="px-5 py-3 text-clay-700">{opportunity.sort_order}</td>
                 <td className="px-5 py-3 text-right">
-                  <Link
-                    href={`/website/serving/${opportunity.id}`}
-                    className="mr-3 text-sm font-medium text-terracotta-dark hover:underline"
-                  >
-                    Edit
-                  </Link>
-                  <form action={deleteServingOpportunity.bind(null, opportunity.id)} className="inline">
-                    <button
-                      type="submit"
-                      className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                    >
-                      Delete
-                    </button>
-                  </form>
+                  <EditDeleteActions
+                    editHref={`/website/serving/${opportunity.id}`}
+                    deleteAction={deleteServingOpportunity.bind(null, opportunity.id)}
+                    itemLabel="serving opportunity"
+                    variant="table"
+                  />
                 </td>
               </tr>
             ))}
@@ -95,22 +88,12 @@ export default async function ServingPage() {
               {opportunity.description && (
                 <p className="mt-2 text-sm text-clay-700">{opportunity.description}</p>
               )}
-              <div className="mt-3 flex items-center gap-4 border-t border-clay-900/8 pt-3">
-                <Link
-                  href={`/website/serving/${opportunity.id}`}
-                  className="text-sm font-medium text-terracotta-dark hover:underline"
-                >
-                  Edit
-                </Link>
-                <form action={deleteServingOpportunity.bind(null, opportunity.id)}>
-                  <button
-                    type="submit"
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                  >
-                    Delete
-                  </button>
-                </form>
-              </div>
+              <EditDeleteActions
+                editHref={`/website/serving/${opportunity.id}`}
+                deleteAction={deleteServingOpportunity.bind(null, opportunity.id)}
+                itemLabel="serving opportunity"
+                variant="card"
+              />
             </li>
           ))}
           {opportunities.length === 0 && !error && (

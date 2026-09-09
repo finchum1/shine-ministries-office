@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { BibleStudyRow } from "@/lib/supabase-types";
+import { EditDeleteActions } from "@/components/EditDeleteActions";
 import { deleteBibleStudy } from "./actions";
 
 export default async function BibleStudiesPage() {
@@ -65,20 +66,12 @@ export default async function BibleStudiesPage() {
                   </span>
                 </td>
                 <td className="px-5 py-3 text-right">
-                  <Link
-                    href={`/website/bible-studies/${study.id}`}
-                    className="mr-3 text-sm font-medium text-terracotta-dark hover:underline"
-                  >
-                    Edit
-                  </Link>
-                  <form action={deleteBibleStudy.bind(null, study.id)} className="inline">
-                    <button
-                      type="submit"
-                      className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                    >
-                      Delete
-                    </button>
-                  </form>
+                  <EditDeleteActions
+                    editHref={`/website/bible-studies/${study.id}`}
+                    deleteAction={deleteBibleStudy.bind(null, study.id)}
+                    itemLabel="Bible study"
+                    variant="table"
+                  />
                 </td>
               </tr>
             ))}
@@ -118,22 +111,12 @@ export default async function BibleStudiesPage() {
                   {study.is_active ? "Active" : "Inactive"}
                 </span>
               </div>
-              <div className="mt-3 flex items-center gap-4 border-t border-clay-900/8 pt-3">
-                <Link
-                  href={`/website/bible-studies/${study.id}`}
-                  className="text-sm font-medium text-terracotta-dark hover:underline"
-                >
-                  Edit
-                </Link>
-                <form action={deleteBibleStudy.bind(null, study.id)}>
-                  <button
-                    type="submit"
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                  >
-                    Delete
-                  </button>
-                </form>
-              </div>
+              <EditDeleteActions
+                editHref={`/website/bible-studies/${study.id}`}
+                deleteAction={deleteBibleStudy.bind(null, study.id)}
+                itemLabel="Bible study"
+                variant="card"
+              />
             </li>
           ))}
           {studies.length === 0 && !error && (

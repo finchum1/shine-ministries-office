@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { EventRow } from "@/lib/supabase-types";
+import { EditDeleteActions } from "@/components/EditDeleteActions";
 import { deleteEvent } from "./actions";
 
 function formatDate(dateStr: string) {
@@ -73,20 +74,12 @@ export default async function EventsPage() {
                   </span>
                 </td>
                 <td className="px-5 py-3 text-right">
-                  <Link
-                    href={`/website/events/${event.id}`}
-                    className="mr-3 text-sm font-medium text-terracotta-dark hover:underline"
-                  >
-                    Edit
-                  </Link>
-                  <form action={deleteEvent.bind(null, event.id)} className="inline">
-                    <button
-                      type="submit"
-                      className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                    >
-                      Delete
-                    </button>
-                  </form>
+                  <EditDeleteActions
+                    editHref={`/website/events/${event.id}`}
+                    deleteAction={deleteEvent.bind(null, event.id)}
+                    itemLabel="event"
+                    variant="table"
+                  />
                 </td>
               </tr>
             ))}
@@ -129,22 +122,12 @@ export default async function EventsPage() {
                   Highlight: {event.highlight}
                 </p>
               )}
-              <div className="mt-3 flex items-center gap-4 border-t border-clay-900/8 pt-3">
-                <Link
-                  href={`/website/events/${event.id}`}
-                  className="text-sm font-medium text-terracotta-dark hover:underline"
-                >
-                  Edit
-                </Link>
-                <form action={deleteEvent.bind(null, event.id)}>
-                  <button
-                    type="submit"
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
-                  >
-                    Delete
-                  </button>
-                </form>
-              </div>
+              <EditDeleteActions
+                editHref={`/website/events/${event.id}`}
+                deleteAction={deleteEvent.bind(null, event.id)}
+                itemLabel="event"
+                variant="card"
+              />
             </li>
           ))}
           {events.length === 0 && !error && (
