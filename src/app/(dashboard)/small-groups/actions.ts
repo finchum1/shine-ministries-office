@@ -11,21 +11,27 @@ function readMemberIds(formData: FormData) {
 export async function createSmallGroup(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name is required.");
+  const leaderId = String(formData.get("leader_id") ?? "") || null;
   const memberIds = readMemberIds(formData);
+
+  // The leader is a member too -- picking them as leader adds them to the
+  // group even if they weren't also checked in the members list, so a group
+  // can be created with just its leader in it and nothing else.
+  const allMemberIds = leaderId ? Array.from(new Set([leaderId, ...memberIds])) : memberIds;
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("small_groups")
-    .insert({ name })
+    .insert({ name, leader_id: leaderId })
     .select("id")
     .single();
   if (error) throw new Error(error.message);
 
-  if (memberIds.length > 0) {
+  if (allMemberIds.length > 0) {
     const { error: memberError } = await supabase
       .from("people")
       .update({ small_group_id: data.id })
-      .in("id", memberIds);
+      .in("id", allMemberIds);
     if (memberError) throw new Error(memberError.message);
   }
 

@@ -30,6 +30,24 @@ export default async function NewSmallGroupPage() {
             <input name="name" required className={inputClass} placeholder="e.g. Tuesday Night" />
           </label>
 
+          <label>
+            <span className="mb-1.5 block text-sm font-medium text-clay-700">
+              Leader (optional)
+            </span>
+            <select name="leader_id" defaultValue="" className={inputClass}>
+              <option value="">No leader yet</option>
+              {unassigned.map((person) => (
+                <option key={person.id} value={person.id}>
+                  {person.full_name}
+                </option>
+              ))}
+            </select>
+            <span className="mt-1.5 block text-xs text-clay-500">
+              Picking a leader adds them to the group -- you can create it with just them in it
+              and add everyone else later.
+            </span>
+          </label>
+
           <div>
             <span className="mb-2 block text-sm font-medium text-clay-700">
               Add members ({unassigned.length} not in a group)
