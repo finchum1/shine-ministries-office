@@ -8,6 +8,14 @@ function readMemberIds(formData: FormData) {
   return formData.getAll("memberIds").map(String).filter(Boolean);
 }
 
+function readDetailFields(formData: FormData) {
+  return {
+    notes: String(formData.get("description") ?? "").trim() || null,
+    location: String(formData.get("location") ?? "").trim() || null,
+    frequency: String(formData.get("frequency") ?? "").trim() || null,
+  };
+}
+
 export async function createSmallGroup(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name is required.");
@@ -22,7 +30,7 @@ export async function createSmallGroup(formData: FormData) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("small_groups")
-    .insert({ name, leader_id: leaderId })
+    .insert({ name, leader_id: leaderId, ...readDetailFields(formData) })
     .select("id")
     .single();
   if (error) throw new Error(error.message);
@@ -40,12 +48,15 @@ export async function createSmallGroup(formData: FormData) {
   redirect(`/small-groups/${data.id}`);
 }
 
-export async function renameSmallGroup(id: string, formData: FormData) {
+export async function updateSmallGroupDetails(id: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name is required.");
 
   const supabase = await createClient();
-  const { error } = await supabase.from("small_groups").update({ name }).eq("id", id);
+  const { error } = await supabase
+    .from("small_groups")
+    .update({ name, ...readDetailFields(formData) })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/small-groups");

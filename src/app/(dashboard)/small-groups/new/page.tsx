@@ -32,6 +32,42 @@ export default async function NewSmallGroupPage() {
 
           <label>
             <span className="mb-1.5 block text-sm font-medium text-clay-700">
+              Description (optional)
+            </span>
+            <textarea
+              name="description"
+              rows={3}
+              placeholder="What this group is about"
+              className={`${inputClass} resize-none`}
+            />
+          </label>
+
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label>
+              <span className="mb-1.5 block text-sm font-medium text-clay-700">
+                Where (optional)
+              </span>
+              <input
+                name="location"
+                placeholder="e.g. The Smiths' house"
+                className={inputClass}
+              />
+            </label>
+
+            <label>
+              <span className="mb-1.5 block text-sm font-medium text-clay-700">
+                Frequency (optional)
+              </span>
+              <input
+                name="frequency"
+                placeholder="e.g. Every other Monday, 6:30 PM"
+                className={inputClass}
+              />
+            </label>
+          </div>
+
+          <label>
+            <span className="mb-1.5 block text-sm font-medium text-clay-700">
               Leader (optional)
             </span>
             <select name="leader_id" defaultValue="" className={inputClass}>

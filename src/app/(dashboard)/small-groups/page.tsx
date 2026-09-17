@@ -79,6 +79,14 @@ export default async function SmallGroupsPage() {
               <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-terracotta-dark">
                 Leader: {leader ? leader.full_name : "Not set"}
               </p>
+              {(group.frequency || group.location) && (
+                <p className="mt-1.5 text-sm text-clay-700">
+                  {[group.frequency, group.location].filter(Boolean).join(" · ")}
+                </p>
+              )}
+              {group.notes && (
+                <p className="mt-1.5 text-sm text-clay-500">{group.notes}</p>
+              )}
               <ul className="mt-3 space-y-1.5 text-sm text-clay-700">
                 {members.map((person) => (
                   <li key={person.id}>

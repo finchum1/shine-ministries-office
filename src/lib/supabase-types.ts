@@ -92,6 +92,7 @@ export type SmallGroupRow = {
   meeting_day: string | null;
   meeting_time: string | null;
   location: string | null;
+  frequency: string | null;
   notes: string | null;
   created_at: string;
 };

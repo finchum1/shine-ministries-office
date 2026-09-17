@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
-import { renameSmallGroup, setLeader, addMembers, removeMember } from "../actions";
+import { updateSmallGroupDetails, setLeader, addMembers, removeMember } from "../actions";
 
 const inputClass =
   "w-full rounded-xl border border-clay-900/12 bg-cream px-4 py-3 text-sm text-clay-900 outline-none transition-shadow placeholder:text-clay-500 focus:border-terracotta focus:ring-2 focus:ring-terracotta/30";
@@ -38,15 +38,52 @@ export default async function ManageSmallGroupPage({
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5">
-          <h2 className="font-display text-lg text-clay-900">Group name</h2>
-          <form action={renameSmallGroup.bind(null, group.id)} className="mt-4 flex gap-3">
-            <input name="name" required defaultValue={group.name} className={inputClass} />
-            <button
-              type="submit"
-              className="shrink-0 rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
-            >
-              Save
-            </button>
+          <h2 className="font-display text-lg text-clay-900">Details</h2>
+          <form action={updateSmallGroupDetails.bind(null, group.id)} className="mt-4 grid gap-4">
+            <label>
+              <span className="mb-1.5 block text-sm font-medium text-clay-700">Group name</span>
+              <input name="name" required defaultValue={group.name} className={inputClass} />
+            </label>
+
+            <label>
+              <span className="mb-1.5 block text-sm font-medium text-clay-700">Description</span>
+              <textarea
+                name="description"
+                rows={3}
+                defaultValue={group.notes ?? ""}
+                placeholder="What this group is about"
+                className={`${inputClass} resize-none`}
+              />
+            </label>
+
+            <label>
+              <span className="mb-1.5 block text-sm font-medium text-clay-700">Where</span>
+              <input
+                name="location"
+                defaultValue={group.location ?? ""}
+                placeholder="e.g. The Smiths' house"
+                className={inputClass}
+              />
+            </label>
+
+            <label>
+              <span className="mb-1.5 block text-sm font-medium text-clay-700">Frequency</span>
+              <input
+                name="frequency"
+                defaultValue={group.frequency ?? ""}
+                placeholder="e.g. Every other Monday, 6:30 PM"
+                className={inputClass}
+              />
+            </label>
+
+            <div>
+              <button
+                type="submit"
+                className="rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+              >
+                Save details
+              </button>
+            </div>
           </form>
 
           <h2 className="mt-8 font-display text-lg text-clay-900">Leader</h2>
