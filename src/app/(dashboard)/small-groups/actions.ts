@@ -28,9 +28,20 @@ export async function createSmallGroup(formData: FormData) {
   const allMemberIds = leaderId ? Array.from(new Set([leaderId, ...memberIds])) : memberIds;
 
   const supabase = await createClient();
+
+  // New groups go at the end of the display order, not wherever sort_order's
+  // default of 0 would put them (always first).
+  const { data: last } = await supabase
+    .from("small_groups")
+    .select("sort_order")
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextSortOrder = (last?.sort_order ?? -1) + 1;
+
   const { data, error } = await supabase
     .from("small_groups")
-    .insert({ name, leader_id: leaderId, ...readDetailFields(formData) })
+    .insert({ name, leader_id: leaderId, sort_order: nextSortOrder, ...readDetailFields(formData) })
     .select("id")
     .single();
   if (error) throw new Error(error.message);

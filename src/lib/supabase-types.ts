@@ -94,6 +94,7 @@ export type SmallGroupRow = {
   location: string | null;
   frequency: string | null;
   notes: string | null;
+  sort_order: number;
   created_at: string;
 };
 
