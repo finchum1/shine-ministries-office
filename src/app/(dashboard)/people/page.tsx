@@ -20,7 +20,11 @@ export default async function PeoplePage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("people")
-    .select("id, full_name, email, phone, small_groups(name)")
+    // Two foreign keys connect people <-> small_groups (this one, plus
+    // small_groups.leader_id -> people the other way), so PostgREST can't
+    // infer which relationship to embed without an explicit hint -- without
+    // it, this query fails outright with an "ambiguous relationship" error.
+    .select("id, full_name, email, phone, small_groups!people_small_group_id_fkey(name)")
     .order("full_name", { ascending: true });
 
   const people = (data as PersonWithGroup[] | null) ?? [];
