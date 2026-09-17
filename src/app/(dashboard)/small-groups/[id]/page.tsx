@@ -94,11 +94,24 @@ export default async function ManageSmallGroupPage({
               className={inputClass}
             >
               <option value="">No leader set</option>
-              {members.map((person) => (
-                <option key={person.id} value={person.id}>
-                  {person.full_name}
-                </option>
-              ))}
+              {members.length > 0 && (
+                <optgroup label="Current members">
+                  {members.map((person) => (
+                    <option key={person.id} value={person.id}>
+                      {person.full_name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {unassigned.length > 0 && (
+                <optgroup label="Not in a group yet">
+                  {unassigned.map((person) => (
+                    <option key={person.id} value={person.id}>
+                      {person.full_name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
             <button
               type="submit"
@@ -107,9 +120,9 @@ export default async function ManageSmallGroupPage({
               Save
             </button>
           </form>
-          {members.length === 0 && (
-            <p className="mt-2 text-xs text-clay-500">Add members below before setting a leader.</p>
-          )}
+          <p className="mt-2 text-xs text-clay-500">
+            Picking someone from &ldquo;Not in a group yet&rdquo; adds them to this group too.
+          </p>
         </div>
 
         <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5">

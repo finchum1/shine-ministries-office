@@ -84,8 +84,21 @@ export async function setLeader(id: string, formData: FormData) {
     .eq("id", id);
   if (error) throw new Error(error.message);
 
+  // The leader is a member too -- picking someone who isn't in the group yet
+  // (e.g. from "Not in a Group") adds them, same as at group creation, so
+  // you don't have to add a member first just to make them the leader.
+  if (leaderId) {
+    const { error: memberError } = await supabase
+      .from("people")
+      .update({ small_group_id: id })
+      .eq("id", leaderId)
+      .is("small_group_id", null);
+    if (memberError) throw new Error(memberError.message);
+  }
+
   revalidatePath("/small-groups");
   revalidatePath(`/small-groups/${id}`);
+  revalidatePath("/people");
 }
 
 export async function addMembers(id: string, formData: FormData) {
