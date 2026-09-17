@@ -1,0 +1,112 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+
+function readMemberIds(formData: FormData) {
+  return formData.getAll("memberIds").map(String).filter(Boolean);
+}
+
+export async function createSmallGroup(formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) throw new Error("Name is required.");
+  const memberIds = readMemberIds(formData);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("small_groups")
+    .insert({ name })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+
+  if (memberIds.length > 0) {
+    const { error: memberError } = await supabase
+      .from("people")
+      .update({ small_group_id: data.id })
+      .in("id", memberIds);
+    if (memberError) throw new Error(memberError.message);
+  }
+
+  revalidatePath("/small-groups");
+  revalidatePath("/people");
+  redirect(`/small-groups/${data.id}`);
+}
+
+export async function renameSmallGroup(id: string, formData: FormData) {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) throw new Error("Name is required.");
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("small_groups").update({ name }).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/small-groups");
+  revalidatePath(`/small-groups/${id}`);
+}
+
+export async function setLeader(id: string, formData: FormData) {
+  const leaderId = String(formData.get("leader_id") ?? "") || null;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("small_groups")
+    .update({ leader_id: leaderId })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/small-groups");
+  revalidatePath(`/small-groups/${id}`);
+}
+
+export async function addMembers(id: string, formData: FormData) {
+  const memberIds = readMemberIds(formData);
+  if (memberIds.length === 0) return;
+
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("people")
+    .update({ small_group_id: id })
+    .in("id", memberIds);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/small-groups");
+  revalidatePath(`/small-groups/${id}`);
+  revalidatePath("/people");
+}
+
+export async function removeMember(groupId: string, personId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("people")
+    .update({ small_group_id: null })
+    .eq("id", personId)
+    .eq("small_group_id", groupId);
+  if (error) throw new Error(error.message);
+
+  // If the person being removed was this group's leader, clear that too --
+  // a leader who's no longer a member shouldn't stay listed as the leader.
+  const { error: leaderError } = await supabase
+    .from("small_groups")
+    .update({ leader_id: null })
+    .eq("id", groupId)
+    .eq("leader_id", personId);
+  if (leaderError) throw new Error(leaderError.message);
+
+  revalidatePath("/small-groups");
+  revalidatePath(`/small-groups/${groupId}`);
+  revalidatePath("/people");
+}
+
+export async function deleteSmallGroup(id: string) {
+  const supabase = await createClient();
+  // People in this group return to "Not in a Group" automatically (the
+  // small_group_id foreign key is ON DELETE SET NULL).
+  const { error } = await supabase.from("small_groups").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/small-groups");
+  revalidatePath("/people");
+}

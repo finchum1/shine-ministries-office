@@ -24,6 +24,13 @@ const sections: NavSectionConfig[] = [
     ],
   },
   {
+    label: "Small Groups",
+    links: [
+      { href: "/small-groups", label: "Small Groups" },
+      { href: "/people", label: "People Directory" },
+    ],
+  },
+  {
     label: "Brand",
     links: [{ href: "/brand", label: "Logos, colors & type" }],
   },

@@ -76,6 +76,26 @@ export type ServingOpportunityRow = {
   created_at: string;
 };
 
+export type PersonRow = {
+  id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  small_group_id: string | null;
+  created_at: string;
+};
+
+export type SmallGroupRow = {
+  id: string;
+  name: string;
+  leader_id: string | null;
+  meeting_day: string | null;
+  meeting_time: string | null;
+  location: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
 // site_settings is a generic key/value store — these are the shapes for the
 // keys the Content editor manages. Mirrors src/lib/settings.ts in the main
 // shine-ministries repo.
