@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import type { LeadershipRoleRow } from "@/lib/supabase-types";
 
@@ -28,13 +29,6 @@ function cardAccentClass(color: RoleColor) {
   }
 }
 
-function stripHtml(html: string) {
-  return html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 // document.execCommand is deprecated but still works for basic formatting in
 // every evergreen browser, and pulling in a full rich-text editor library
 // for "bold/italic/underline/lists" would be a lot of new dependency weight
@@ -48,6 +42,11 @@ const TOOLBAR: { command: string; label: string; icon: string }[] = [
   { command: "insertUnorderedList", label: "Bullet list", icon: "•" },
   { command: "insertOrderedList", label: "Numbered list", icon: "1." },
 ];
+
+// Classes shared between the modal's editor and each card's preview, so a
+// bullet/numbered list looks the same rendered small on a card as it does
+// while editing it.
+const RICH_TEXT_CLASS = "[&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5";
 
 const DROP_ATTR = "data-drop-id";
 
@@ -194,7 +193,9 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
 
   // Moves the dragged card to swap places with whatever it's hovering,
   // live -- called on every pointermove during a drag so the grid re-flows
-  // as you drag instead of jumping into place on release.
+  // as you drag. The actual sliding motion is handled by each card's
+  // `layout` prop below (Motion detects the position change this causes and
+  // animates between the old and new spot) rather than by this function.
   function liveReorder(draggedId: string, targetId: string) {
     const current = rolesRef.current;
     const fromIndex = current.findIndex((r) => r.id === draggedId);
@@ -271,37 +272,51 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
 
   return (
     <div>
-      <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-6 flex justify-end">
         <button
           type="button"
           onClick={() => setOpenId("new")}
-          className="flex min-h-36 flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-clay-900/15 p-5 text-clay-500 transition-colors hover:border-terracotta hover:text-terracotta-dark"
+          className="inline-flex items-center gap-1 rounded-full bg-sage px-4 py-2 text-xs font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
         >
-          <span className="text-2xl leading-none">+</span>
-          <span className="text-sm font-medium">New Role</span>
+          <span className="text-sm leading-none">+</span> New Role
         </button>
+      </div>
 
+      <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2">
         {roles.map((role) => (
-          <div
+          <motion.div
             key={role.id}
+            layout
+            transition={{ type: "spring", stiffness: 220, damping: 26 }}
             {...{ [DROP_ATTR]: role.id }}
-            className={`flex min-h-36 flex-col rounded-2xl p-3 shadow-sm ring-1 transition-shadow ${cardAccentClass(
+            className={`flex flex-col rounded-2xl p-4 shadow-sm ring-1 transition-shadow ${cardAccentClass(
               role.color
             )} ${dragOverId === role.id ? "ring-2 ring-terracotta" : ""}`}
           >
-            <GripIcon onPointerDown={(e) => startDrag(e, role.id)} />
-            <button
-              type="button"
+            <div className="flex items-center gap-1">
+              <GripIcon onPointerDown={(e) => startDrag(e, role.id)} />
+            </div>
+            <div
+              role="button"
+              tabIndex={0}
               onClick={() => setOpenId(role.id)}
-              className="flex flex-1 flex-col items-start px-2 pb-2 pt-1 text-left"
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") setOpenId(role.id);
+              }}
+              className="flex flex-1 cursor-pointer flex-col items-start px-2 pb-2 pt-1 text-left"
             >
               <h2 className="font-display text-lg text-clay-900">{role.title}</h2>
               <p className="mt-0.5 text-xs text-clay-500">{role.assigned_name || "Unassigned"}</p>
-              <p className="mt-2 line-clamp-4 text-sm text-clay-700">
-                {role.description_html ? stripHtml(role.description_html) : "No description yet."}
-              </p>
-            </button>
-          </div>
+              {role.description_html ? (
+                <div
+                  className={`mt-2 line-clamp-4 text-sm text-clay-700 ${RICH_TEXT_CLASS}`}
+                  dangerouslySetInnerHTML={{ __html: role.description_html }}
+                />
+              ) : (
+                <p className="mt-2 text-sm text-clay-500">No description yet.</p>
+              )}
+            </div>
+          </motion.div>
         ))}
 
         {roles.length === 0 && (
@@ -398,7 +413,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
                 ref={editorRef}
                 contentEditable
                 suppressContentEditableWarning
-                className="mt-2 min-h-56 rounded-xl border border-clay-900/12 bg-cream px-4 py-3 text-sm leading-relaxed text-clay-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/30 [&_ol]:list-decimal [&_ol]:pl-5 [&_ul]:list-disc [&_ul]:pl-5"
+                className={`mt-2 min-h-56 rounded-xl border border-clay-900/12 bg-cream px-4 py-3 text-sm leading-relaxed text-clay-900 outline-none focus:border-terracotta focus:ring-2 focus:ring-terracotta/30 ${RICH_TEXT_CLASS}`}
               />
             </div>
 
