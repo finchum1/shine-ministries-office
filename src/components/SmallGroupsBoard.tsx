@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
 import { SunMark } from "@/components/icons/SunMark";
+import { REORDER_TRANSITION } from "@/lib/reorder-transition";
 
 type Dragging = { kind: "person"; id: string } | { kind: "group"; id: string } | null;
 
@@ -277,7 +279,13 @@ export function SmallGroupsBoard({
           const meta = [group.frequency, group.location].filter(Boolean).join(" · ");
 
           return (
-            <div key={group.id} {...{ [DROP_ATTR]: group.id }} className={cardClass(group.id)}>
+            <motion.div
+              key={group.id}
+              layout
+              transition={REORDER_TRANSITION}
+              {...{ [DROP_ATTR]: group.id }}
+              className={cardClass(group.id)}
+            >
               <div className="flex shrink-0 items-center gap-1">
                 <GroupGrip onPointerDown={(e) => startDrag(e, { kind: "group", id: group.id })} />
                 <h2 className="min-w-0 flex-1 truncate font-display text-sm text-clay-900">
@@ -311,7 +319,7 @@ export function SmallGroupsBoard({
               >
                 Manage
               </Link>
-            </div>
+            </motion.div>
           );
         })}
       </div>

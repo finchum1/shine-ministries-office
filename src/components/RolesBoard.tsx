@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import type { LeadershipRoleRow } from "@/lib/supabase-types";
+import { REORDER_TRANSITION } from "@/lib/reorder-transition";
 
 type RoleColor = "terracotta" | "sage" | "lavender" | null;
 
@@ -287,7 +288,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
           <motion.div
             key={role.id}
             layout
-            transition={{ type: "spring", stiffness: 220, damping: 26 }}
+            transition={REORDER_TRANSITION}
             {...{ [DROP_ATTR]: role.id }}
             className={`flex flex-col rounded-2xl p-4 shadow-sm ring-1 transition-shadow ${cardAccentClass(
               role.color
