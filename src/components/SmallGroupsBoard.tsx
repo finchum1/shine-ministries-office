@@ -9,6 +9,22 @@ import { EditDeleteActions } from "@/components/EditDeleteActions";
 type Dragging = { kind: "person"; id: string } | { kind: "group"; id: string } | null;
 
 const UNASSIGNED = "__unassigned__";
+const DROP_ATTR = "data-drop-id";
+
+// Native HTML5 drag-and-drop (the `draggable` attribute) never fires on
+// touch devices at all -- iOS/iPadOS Safari just ignores it -- so dragging
+// here is built on the Pointer Events API instead, which unifies mouse,
+// touch, and pen under one set of events. Each draggable thing is a small
+// dedicated grip handle (touch-action: none) rather than the whole row/card,
+// so a touch that starts on ordinary text still scrolls normally; only a
+// touch that starts on a grip is treated as a drag.
+function GripIcon({ className = "" }: { className?: string }) {
+  return (
+    <span aria-hidden className={`select-none ${className}`}>
+      ⠿
+    </span>
+  );
+}
 
 export function SmallGroupsBoard({
   initialGroups,
@@ -100,10 +116,8 @@ export function SmallGroupsBoard({
     }
   }
 
-  function handleDrop(targetId: string) {
-    const dragged = dragging;
-    endDrag();
-    if (!dragged) return;
+  function handleDrop(dragged: Dragging, targetId: string | null) {
+    if (!dragged || !targetId) return;
 
     if (dragged.kind === "person") {
       movePerson(dragged.id, targetId === UNASSIGNED ? null : targetId);
@@ -111,6 +125,36 @@ export function SmallGroupsBoard({
       reorderGroups(dragged.id, targetId);
     }
   }
+
+  function startDrag(e: React.PointerEvent, payload: Dragging) {
+    if (dragging) return; // ignore a second finger/pointer mid-drag
+    e.preventDefault();
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(payload);
+  }
+
+  function moveDrag(e: React.PointerEvent) {
+    if (!dragging) return;
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const target = el?.closest(`[${DROP_ATTR}]`);
+    setDragOverId(target?.getAttribute(DROP_ATTR) ?? null);
+  }
+
+  function endDragPointer(e: React.PointerEvent) {
+    if (!dragging) return;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+    handleDrop(dragging, dragOverId);
+    endDrag();
+  }
+
+  const gripProps = (payload: Dragging) => ({
+    onPointerDown: (e: React.PointerEvent) => startDrag(e, payload),
+    onPointerMove: moveDrag,
+    onPointerUp: endDragPointer,
+    onPointerCancel: endDragPointer,
+  });
 
   const cardClass = (id: string) =>
     `flex aspect-square flex-col overflow-hidden rounded-2xl bg-white p-3 shadow-sm ring-1 ring-clay-900/5 transition-shadow ${
@@ -127,17 +171,9 @@ export function SmallGroupsBoard({
 
       <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {/* The "shadow box" for everyone not yet placed in a group. Fixed
-            square size, no drag handle (it doesn't reorder) -- just a drop
-            target for people dragged out of a group. */}
-        <div
-          onDragOver={(e) => e.preventDefault()}
-          onDragEnter={() => dragging?.kind === "person" && setDragOverId(UNASSIGNED)}
-          onDrop={(e) => {
-            e.preventDefault();
-            handleDrop(UNASSIGNED);
-          }}
-          className={`${cardClass(UNASSIGNED)} bg-cream-soft`}
-        >
+            square size, no drag handle of its own (it doesn't reorder) --
+            just a drop target for people dragged out of a group. */}
+        <div {...{ [DROP_ATTR]: UNASSIGNED }} className={`${cardClass(UNASSIGNED)} bg-cream-soft`}>
           <div className="flex shrink-0 items-center justify-between gap-2">
             <h2 className="truncate font-display text-sm text-clay-900">Not in a Group</h2>
             <span className="shrink-0 rounded-full bg-clay-900/8 px-2 py-0.5 text-xs font-medium text-clay-500">
@@ -146,14 +182,12 @@ export function SmallGroupsBoard({
           </div>
           <ul className="mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto text-sm text-clay-700">
             {unassigned.map((person) => (
-              <li
-                key={person.id}
-                draggable
-                onDragStart={() => setDragging({ kind: "person", id: person.id })}
-                onDragEnd={endDrag}
-                className="cursor-grab truncate rounded px-1 py-0.5 active:cursor-grabbing"
-              >
-                {person.full_name}
+              <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
+                <GripIcon
+                  className="shrink-0 cursor-grab touch-none text-clay-400 active:cursor-grabbing"
+                  {...gripProps({ kind: "person", id: person.id })}
+                />
+                <span className="truncate">{person.full_name}</span>
               </li>
             ))}
             {unassigned.length === 0 && (
@@ -168,26 +202,12 @@ export function SmallGroupsBoard({
           const meta = [group.frequency, group.location].filter(Boolean).join(" · ");
 
           return (
-            <div
-              key={group.id}
-              onDragOver={(e) => e.preventDefault()}
-              onDragEnter={() => setDragOverId(group.id)}
-              onDrop={(e) => {
-                e.preventDefault();
-                handleDrop(group.id);
-              }}
-              className={cardClass(group.id)}
-            >
+            <div key={group.id} {...{ [DROP_ATTR]: group.id }} className={cardClass(group.id)}>
               <div className="flex shrink-0 items-start gap-1.5">
-                <span
-                  draggable
-                  onDragStart={() => setDragging({ kind: "group", id: group.id })}
-                  onDragEnd={endDrag}
-                  title="Drag to reorder"
-                  className="mt-0.5 shrink-0 cursor-grab select-none text-clay-400 active:cursor-grabbing"
-                >
-                  ⠿
-                </span>
+                <GripIcon
+                  className="mt-0.5 shrink-0 cursor-grab touch-none text-clay-400 active:cursor-grabbing"
+                  {...gripProps({ kind: "group", id: group.id })}
+                />
                 <h2 className="min-w-0 flex-1 truncate font-display text-sm text-clay-900">
                   {group.name}
                 </h2>
@@ -203,14 +223,12 @@ export function SmallGroupsBoard({
 
               <ul className="mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto text-sm text-clay-700">
                 {members.map((person) => (
-                  <li
-                    key={person.id}
-                    draggable
-                    onDragStart={() => setDragging({ kind: "person", id: person.id })}
-                    onDragEnd={endDrag}
-                    className="cursor-grab truncate rounded px-1 py-0.5 active:cursor-grabbing"
-                  >
-                    {person.full_name}
+                  <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
+                    <GripIcon
+                      className="shrink-0 cursor-grab touch-none text-clay-400 active:cursor-grabbing"
+                      {...gripProps({ kind: "person", id: person.id })}
+                    />
+                    <span className="truncate">{person.full_name}</span>
                   </li>
                 ))}
                 {members.length === 0 && <li className="text-clay-500">No members yet.</li>}
