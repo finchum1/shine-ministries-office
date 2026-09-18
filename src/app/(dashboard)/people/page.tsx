@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { EditDeleteActions } from "@/components/EditDeleteActions";
+import { PeopleDirectory } from "@/components/PeopleDirectory";
 import { deletePerson } from "./actions";
 
 type PersonWithGroup = {
@@ -27,7 +27,13 @@ export default async function PeoplePage() {
     .select("id, full_name, email, phone, small_groups!people_small_group_id_fkey(name)")
     .order("full_name", { ascending: true });
 
-  const people = (data as PersonWithGroup[] | null) ?? [];
+  const people = ((data as PersonWithGroup[] | null) ?? []).map((person) => ({
+    id: person.id,
+    full_name: person.full_name,
+    email: person.email,
+    phone: person.phone,
+    group: groupName(person),
+  }));
 
   return (
     <div>
@@ -60,97 +66,7 @@ export default async function PeoplePage() {
         </p>
       )}
 
-      {/* Desktop / wide screens: table. */}
-      <div className="mt-8 hidden overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-clay-900/5 md:block">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-cream-soft text-xs font-semibold uppercase tracking-wide text-clay-500">
-            <tr>
-              <th className="px-5 py-3">Name</th>
-              <th className="px-5 py-3">Email</th>
-              <th className="px-5 py-3">Phone</th>
-              <th className="px-5 py-3">Small Group</th>
-              <th className="px-5 py-3" />
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-clay-900/8">
-            {people.map((person) => {
-              const group = groupName(person);
-              return (
-                <tr key={person.id}>
-                  <td className="px-5 py-3 font-medium text-clay-900">{person.full_name}</td>
-                  <td className="px-5 py-3 text-clay-700">{person.email ?? "—"}</td>
-                  <td className="px-5 py-3 text-clay-700">{person.phone ?? "—"}</td>
-                  <td className="px-5 py-3">
-                    {group ? (
-                      <span className="rounded-full bg-sage/15 px-2.5 py-1 text-xs font-medium text-sage-dark">
-                        {group}
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-clay-900/8 px-2.5 py-1 text-xs font-medium text-clay-500">
-                        Not in a Group
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-5 py-3 text-right">
-                    <EditDeleteActions
-                      editHref={`/people/${person.id}`}
-                      deleteAction={deletePerson.bind(null, person.id)}
-                      itemLabel="person"
-                      variant="table"
-                    />
-                  </td>
-                </tr>
-              );
-            })}
-            {people.length === 0 && !error && (
-              <tr>
-                <td colSpan={5} className="px-5 py-8 text-center text-clay-500">
-                  No people yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Small screens: cards. */}
-      <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-clay-900/5 md:hidden">
-        <ul className="divide-y divide-clay-900/8">
-          {people.map((person) => {
-            const group = groupName(person);
-            return (
-              <li key={person.id} className="p-4">
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-medium text-clay-900">{person.full_name}</p>
-                  {group ? (
-                    <span className="shrink-0 rounded-full bg-sage/15 px-2.5 py-1 text-xs font-medium text-sage-dark">
-                      {group}
-                    </span>
-                  ) : (
-                    <span className="shrink-0 rounded-full bg-clay-900/8 px-2.5 py-1 text-xs font-medium text-clay-500">
-                      Not in a Group
-                    </span>
-                  )}
-                </div>
-                {(person.email || person.phone) && (
-                  <p className="mt-1 text-sm text-clay-700">
-                    {[person.email, person.phone].filter(Boolean).join(" · ")}
-                  </p>
-                )}
-                <EditDeleteActions
-                  editHref={`/people/${person.id}`}
-                  deleteAction={deletePerson.bind(null, person.id)}
-                  itemLabel="person"
-                  variant="card"
-                />
-              </li>
-            );
-          })}
-          {people.length === 0 && !error && (
-            <li className="px-5 py-8 text-center text-clay-500">No people yet.</li>
-          )}
-        </ul>
-      </div>
+      <PeopleDirectory people={people} deletePerson={deletePerson} />
     </div>
   );
 }
