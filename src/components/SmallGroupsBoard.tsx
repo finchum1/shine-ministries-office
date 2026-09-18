@@ -31,28 +31,40 @@ const DROP_ATTR = "data-drop-id";
 // select text or show its callout menu) rather than the whole row/card, so
 // a touch that starts on ordinary text still scrolls normally; only a
 // touch that starts on a grip is treated as a drag. The handle itself is a
-// generously padded 32px hit area (bigger than the sun mark drawn inside
-// it) since the icon glyph alone was too small a target to reliably grab
-// on a touch screen.
+// generously padded 32px hit area (bigger than the icon drawn inside it)
+// since a bare icon-sized target was too small to reliably grab on touch.
 const gripStyle: React.CSSProperties = {
   touchAction: "none",
   WebkitUserSelect: "none",
   WebkitTouchCallout: "none",
 };
 
-function GripIcon({
-  className = "",
-  onPointerDown,
-}: {
-  className?: string;
-  onPointerDown: (e: React.PointerEvent) => void;
-}) {
+const gripBase =
+  "flex h-8 w-8 shrink-0 cursor-grab select-none items-center justify-center rounded-full transition-colors hover:bg-clay-900/5 active:cursor-grabbing";
+
+// People get a plain grip -- the sun mark is reserved for a group's own
+// reorder handle, so the two kinds of drag read as visually distinct.
+function PersonGrip({ onPointerDown }: { onPointerDown: (e: React.PointerEvent) => void }) {
   return (
     <span
       aria-hidden
       onPointerDown={onPointerDown}
       style={gripStyle}
-      className={`flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full transition-colors hover:bg-clay-900/5 ${className}`}
+      className={`${gripBase} text-base leading-none text-clay-400 active:text-clay-600`}
+    >
+      ⠿
+    </span>
+  );
+}
+
+function GroupGrip({ onPointerDown }: { onPointerDown: (e: React.PointerEvent) => void }) {
+  return (
+    <span
+      aria-hidden
+      onPointerDown={onPointerDown}
+      style={gripStyle}
+      className={`${gripBase} text-terracotta active:text-terracotta-dark`}
+      title="Drag to reorder"
     >
       <SunMark className="h-5 w-5" />
     </span>
@@ -73,9 +85,15 @@ export function SmallGroupsBoard({
   const [dragging, setDragging] = useState<Dragging>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragOverIdRef = useRef<string | null>(null);
+  const groupsRef = useRef(initialGroups);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const unassigned = people.filter((p) => !p.small_group_id);
+
+  function updateGroups(next: SmallGroupRow[]) {
+    groupsRef.current = next;
+    setGroups(next);
+  }
 
   function setDragOver(id: string | null) {
     dragOverIdRef.current = id;
@@ -96,8 +114,8 @@ export function SmallGroupsBoard({
     );
     // A person who's moved off a group loses "leader" there if they held it.
     if (!targetGroupId) {
-      setGroups((prev) =>
-        prev.map((g) => (g.leader_id === personId ? { ...g, leader_id: null } : g))
+      updateGroups(
+        groupsRef.current.map((g) => (g.leader_id === personId ? { ...g, leader_id: null } : g))
       );
     }
 
@@ -123,19 +141,28 @@ export function SmallGroupsBoard({
     }
   }
 
-  async function reorderGroups(draggedId: string, targetId: string) {
-    const fromIndex = groups.findIndex((g) => g.id === draggedId);
-    const toIndex = groups.findIndex((g) => g.id === targetId);
+  // Moves the dragged group to swap places with whatever it's currently
+  // hovering, live -- called on every pointermove while dragging a group,
+  // not just on drop, so the grid re-flows as you drag instead of jumping
+  // into place all at once at the end.
+  function liveReorderGroups(draggedId: string, targetId: string) {
+    const current = groupsRef.current;
+    const fromIndex = current.findIndex((g) => g.id === draggedId);
+    const toIndex = current.findIndex((g) => g.id === targetId);
     if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
 
-    const reordered = [...groups];
+    const reordered = [...current];
     const [moved] = reordered.splice(fromIndex, 1);
     reordered.splice(toIndex, 0, moved);
-    setGroups(reordered);
+    updateGroups(reordered);
+  }
 
+  // Writes whatever order groupsRef is currently in (already reordered live
+  // during the drag) back to Supabase -- called once, on drop.
+  async function persistGroupOrder() {
     setErrorMessage(null);
     try {
-      const changed = reordered
+      const changed = groupsRef.current
         .map((group, index) => ({ group, index }))
         .filter(({ group, index }) => group.sort_order !== index);
 
@@ -146,6 +173,9 @@ export function SmallGroupsBoard({
           .eq("id", group.id);
         if (error) throw error;
       }
+      if (changed.length > 0) {
+        updateGroups(groupsRef.current.map((g, index) => ({ ...g, sort_order: index })));
+      }
       router.refresh();
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Couldn't reorder groups.");
@@ -153,21 +183,11 @@ export function SmallGroupsBoard({
     }
   }
 
-  function handleDrop(dragged: Dragging, targetId: string | null) {
-    if (!dragged || !targetId) return;
-
-    if (dragged.kind === "person") {
-      movePerson(dragged.id, targetId === UNASSIGNED ? null : targetId);
-    } else if (dragged.kind === "group" && targetId !== UNASSIGNED) {
-      reorderGroups(dragged.id, targetId);
-    }
-  }
-
   // Attached to window for the duration of a drag (see comment above on why
   // not setPointerCapture). Re-subscribes only when a drag starts/ends, not
-  // on every move, so dragOverIdRef (not the dragOverId state) is what
-  // handleUp reads -- it stays current without needing this effect to
-  // re-run on every hovered card.
+  // on every move -- dragOverIdRef/groupsRef (not the state values) are what
+  // handleMove/handleUp read, so they stay current without needing this
+  // effect to re-run on every hovered card or live reorder.
   useEffect(() => {
     if (!dragging) return;
 
@@ -175,11 +195,25 @@ export function SmallGroupsBoard({
       e.preventDefault();
       const el = document.elementFromPoint(e.clientX, e.clientY);
       const target = el?.closest(`[${DROP_ATTR}]`);
-      setDragOver(target?.getAttribute(DROP_ATTR) ?? null);
+      const targetId = target?.getAttribute(DROP_ATTR) ?? null;
+      setDragOver(targetId);
+
+      if (
+        dragging?.kind === "group" &&
+        targetId &&
+        targetId !== UNASSIGNED &&
+        targetId !== dragging.id
+      ) {
+        liveReorderGroups(dragging.id, targetId);
+      }
     }
 
     function handleUp() {
-      handleDrop(dragging, dragOverIdRef.current);
+      if (dragging?.kind === "person") {
+        movePerson(dragging.id, dragOverIdRef.current === UNASSIGNED ? null : dragOverIdRef.current);
+      } else if (dragging?.kind === "group") {
+        persistGroupOrder();
+      }
       endDrag();
     }
 
@@ -227,10 +261,7 @@ export function SmallGroupsBoard({
           <ul className="mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto text-sm text-clay-700">
             {unassigned.map((person) => (
               <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
-                <GripIcon
-                  className="cursor-grab text-terracotta active:cursor-grabbing active:text-terracotta-dark"
-                  onPointerDown={(e) => startDrag(e, { kind: "person", id: person.id })}
-                />
+                <PersonGrip onPointerDown={(e) => startDrag(e, { kind: "person", id: person.id })} />
                 <span className="truncate">{person.full_name}</span>
               </li>
             ))}
@@ -248,10 +279,7 @@ export function SmallGroupsBoard({
           return (
             <div key={group.id} {...{ [DROP_ATTR]: group.id }} className={cardClass(group.id)}>
               <div className="flex shrink-0 items-center gap-1">
-                <GripIcon
-                  className="cursor-grab text-terracotta active:cursor-grabbing active:text-terracotta-dark"
-                  onPointerDown={(e) => startDrag(e, { kind: "group", id: group.id })}
-                />
+                <GroupGrip onPointerDown={(e) => startDrag(e, { kind: "group", id: group.id })} />
                 <h2 className="min-w-0 flex-1 truncate font-display text-sm text-clay-900">
                   {group.name}
                 </h2>
@@ -268,8 +296,7 @@ export function SmallGroupsBoard({
               <ul className="mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto text-sm text-clay-700">
                 {members.map((person) => (
                   <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
-                    <GripIcon
-                      className="cursor-grab text-terracotta active:cursor-grabbing active:text-terracotta-dark"
+                    <PersonGrip
                       onPointerDown={(e) => startDrag(e, { kind: "person", id: person.id })}
                     />
                     <span className="truncate">{person.full_name}</span>
