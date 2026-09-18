@@ -102,6 +102,7 @@ export type LeadershipRoleRow = {
   id: string;
   title: string;
   description_html: string | null;
+  color: "terracotta" | "sage" | "lavender" | null;
   sort_order: number;
   created_at: string;
 };

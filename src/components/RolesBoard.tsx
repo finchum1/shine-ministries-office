@@ -6,6 +6,28 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { LeadershipRoleRow } from "@/lib/supabase-types";
 
+type RoleColor = "terracotta" | "sage" | "lavender" | null;
+
+const ROLE_COLORS: { value: RoleColor; label: string; swatch: string }[] = [
+  { value: null, label: "None", swatch: "bg-white ring-1 ring-clay-900/15" },
+  { value: "terracotta", label: "Terracotta", swatch: "bg-terracotta" },
+  { value: "sage", label: "Sage", swatch: "bg-sage" },
+  { value: "lavender", label: "Lavender", swatch: "bg-lavender" },
+];
+
+function cardAccentClass(color: RoleColor) {
+  switch (color) {
+    case "terracotta":
+      return "bg-terracotta/10 ring-terracotta/25";
+    case "sage":
+      return "bg-sage/10 ring-sage/25";
+    case "lavender":
+      return "bg-lavender/10 ring-lavender/25";
+    default:
+      return "bg-white ring-clay-900/5";
+  }
+}
+
 function stripHtml(html: string) {
   return html
     .replace(/<[^>]*>/g, " ")
@@ -27,22 +49,54 @@ const TOOLBAR: { command: string; label: string; icon: string }[] = [
   { command: "insertOrderedList", label: "Numbered list", icon: "1." },
 ];
 
+const DROP_ATTR = "data-drop-id";
+
+// Same window-level Pointer Events drag as SmallGroupsBoard (see that file
+// for the full rationale) -- native HTML5 draggable doesn't fire on touch,
+// and setPointerCapture has real iOS Safari gaps, so this tracks the drag
+// with window listeners added on pointerdown and removed on pointerup.
+const gripStyle: React.CSSProperties = {
+  touchAction: "none",
+  WebkitUserSelect: "none",
+  WebkitTouchCallout: "none",
+};
+
+function GripIcon({ onPointerDown }: { onPointerDown: (e: React.PointerEvent) => void }) {
+  return (
+    <span
+      aria-hidden
+      onPointerDown={onPointerDown}
+      style={gripStyle}
+      className="flex h-8 w-8 shrink-0 cursor-grab select-none items-center justify-center rounded-full text-base leading-none text-clay-400 transition-colors hover:bg-clay-900/5 active:cursor-grabbing active:text-clay-600"
+    >
+      ⠿
+    </span>
+  );
+}
+
 export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[] }) {
   const router = useRouter();
   const supabase = createClient();
   const [roles, setRoles] = useState(initialRoles);
   const [openId, setOpenId] = useState<string | "new" | null>(null);
   const [title, setTitle] = useState("");
+  const [color, setColor] = useState<RoleColor>(null);
   const [saving, setSaving] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const editorRef = useRef<HTMLDivElement>(null);
+
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const dragOverIdRef = useRef<string | null>(null);
+  const rolesRef = useRef(initialRoles);
 
   const editingRole = openId && openId !== "new" ? roles.find((r) => r.id === openId) : null;
 
   useEffect(() => {
     if (openId === null) return;
     setTitle(editingRole?.title ?? "");
+    setColor(editingRole?.color ?? null);
     setConfirmingDelete(false);
     setErrorMessage(null);
     if (editorRef.current) {
@@ -59,6 +113,11 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
     document.execCommand(command);
   }
 
+  function updateRoles(next: LeadershipRoleRow[]) {
+    rolesRef.current = next;
+    setRoles(next);
+  }
+
   async function handleSave() {
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
@@ -73,13 +132,13 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
       if (editingRole) {
         const { error } = await supabase
           .from("leadership_roles")
-          .update({ title: trimmedTitle, description_html: descriptionHtml })
+          .update({ title: trimmedTitle, description_html: descriptionHtml, color })
           .eq("id", editingRole.id);
         if (error) throw error;
-        setRoles((prev) =>
-          prev.map((r) =>
+        updateRoles(
+          rolesRef.current.map((r) =>
             r.id === editingRole.id
-              ? { ...r, title: trimmedTitle, description_html: descriptionHtml }
+              ? { ...r, title: trimmedTitle, description_html: descriptionHtml, color }
               : r
           )
         );
@@ -87,11 +146,11 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
         const nextSortOrder = roles.length ? Math.max(...roles.map((r) => r.sort_order)) + 1 : 0;
         const { data, error } = await supabase
           .from("leadership_roles")
-          .insert({ title: trimmedTitle, description_html: descriptionHtml, sort_order: nextSortOrder })
+          .insert({ title: trimmedTitle, description_html: descriptionHtml, color, sort_order: nextSortOrder })
           .select()
           .single();
         if (error) throw error;
-        setRoles((prev) => [...prev, data as LeadershipRoleRow]);
+        updateRoles([...rolesRef.current, data as LeadershipRoleRow]);
       }
       setOpenId(null);
       router.refresh();
@@ -109,7 +168,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
     try {
       const { error } = await supabase.from("leadership_roles").delete().eq("id", editingRole.id);
       if (error) throw error;
-      setRoles((prev) => prev.filter((r) => r.id !== editingRole.id));
+      updateRoles(rolesRef.current.filter((r) => r.id !== editingRole.id));
       setOpenId(null);
       router.refresh();
     } catch (err) {
@@ -117,6 +176,88 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
     } finally {
       setSaving(false);
     }
+  }
+
+  function setDragOver(id: string | null) {
+    dragOverIdRef.current = id;
+    setDragOverId(id);
+  }
+
+  // Moves the dragged card to swap places with whatever it's hovering,
+  // live -- called on every pointermove during a drag so the grid re-flows
+  // as you drag instead of jumping into place on release.
+  function liveReorder(draggedId: string, targetId: string) {
+    const current = rolesRef.current;
+    const fromIndex = current.findIndex((r) => r.id === draggedId);
+    const toIndex = current.findIndex((r) => r.id === targetId);
+    if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+
+    const reordered = [...current];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
+    updateRoles(reordered);
+  }
+
+  async function persistOrder() {
+    setErrorMessage(null);
+    try {
+      const changed = rolesRef.current
+        .map((role, index) => ({ role, index }))
+        .filter(({ role, index }) => role.sort_order !== index);
+
+      for (const { role, index } of changed) {
+        const { error } = await supabase
+          .from("leadership_roles")
+          .update({ sort_order: index })
+          .eq("id", role.id);
+        if (error) throw error;
+      }
+      if (changed.length > 0) {
+        updateRoles(rolesRef.current.map((r, index) => ({ ...r, sort_order: index })));
+      }
+      router.refresh();
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Couldn't reorder roles.");
+      router.refresh();
+    }
+  }
+
+  useEffect(() => {
+    if (!draggingId) return;
+
+    function handleMove(e: PointerEvent) {
+      e.preventDefault();
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const target = el?.closest(`[${DROP_ATTR}]`);
+      const targetId = target?.getAttribute(DROP_ATTR) ?? null;
+      setDragOver(targetId);
+
+      if (draggingId && targetId && targetId !== draggingId) {
+        liveReorder(draggingId, targetId);
+      }
+    }
+
+    function handleUp() {
+      persistOrder();
+      setDraggingId(null);
+      setDragOver(null);
+    }
+
+    window.addEventListener("pointermove", handleMove, { passive: false });
+    window.addEventListener("pointerup", handleUp);
+    window.addEventListener("pointercancel", handleUp);
+    return () => {
+      window.removeEventListener("pointermove", handleMove);
+      window.removeEventListener("pointerup", handleUp);
+      window.removeEventListener("pointercancel", handleUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draggingId]);
+
+  function startDrag(e: React.PointerEvent, id: string) {
+    if (draggingId) return;
+    e.preventDefault();
+    setDraggingId(id);
   }
 
   return (
@@ -132,17 +273,25 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
         </button>
 
         {roles.map((role) => (
-          <button
+          <div
             key={role.id}
-            type="button"
-            onClick={() => setOpenId(role.id)}
-            className="flex min-h-36 flex-col items-start rounded-2xl bg-white p-5 text-left shadow-sm ring-1 ring-clay-900/5 transition-shadow hover:shadow-md"
+            {...{ [DROP_ATTR]: role.id }}
+            className={`flex min-h-36 flex-col rounded-2xl p-3 shadow-sm ring-1 transition-shadow ${cardAccentClass(
+              role.color
+            )} ${dragOverId === role.id ? "ring-2 ring-terracotta" : ""}`}
           >
-            <h2 className="font-display text-lg text-clay-900">{role.title}</h2>
-            <p className="mt-2 line-clamp-4 text-sm text-clay-700">
-              {role.description_html ? stripHtml(role.description_html) : "No description yet."}
-            </p>
-          </button>
+            <GripIcon onPointerDown={(e) => startDrag(e, role.id)} />
+            <button
+              type="button"
+              onClick={() => setOpenId(role.id)}
+              className="flex flex-1 flex-col items-start px-2 pb-2 pt-1 text-left"
+            >
+              <h2 className="font-display text-lg text-clay-900">{role.title}</h2>
+              <p className="mt-2 line-clamp-4 text-sm text-clay-700">
+                {role.description_html ? stripHtml(role.description_html) : "No description yet."}
+              </p>
+            </button>
+          </div>
         ))}
 
         {roles.length === 0 && (
@@ -193,6 +342,26 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
                 placeholder="Role title"
                 className="w-full border-b border-clay-900/12 pb-2 font-display text-xl text-clay-900 outline-none focus:border-terracotta"
               />
+
+              <div className="mt-4 flex items-center gap-3">
+                <span className="text-xs font-semibold uppercase tracking-wide text-clay-500">
+                  Card color
+                </span>
+                <div className="flex items-center gap-2">
+                  {ROLE_COLORS.map((opt) => (
+                    <button
+                      key={opt.label}
+                      type="button"
+                      title={opt.label}
+                      aria-label={opt.label}
+                      onClick={() => setColor(opt.value)}
+                      className={`h-7 w-7 rounded-full transition-shadow ${opt.swatch} ${
+                        color === opt.value ? "ring-2 ring-offset-2 ring-clay-900/40" : ""
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
 
               <div className="mt-4 flex flex-wrap gap-1 rounded-lg bg-cream-soft p-1.5">
                 {TOOLBAR.map((btn) => (
