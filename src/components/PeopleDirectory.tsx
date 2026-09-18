@@ -30,17 +30,18 @@ export function PeopleDirectory({
   people: PersonWithGroupName[];
   deletePerson: (id: string) => Promise<void>;
 }) {
-  // Off by default: plain alphabetical-by-name, same as before this existed.
-  const [sortByGroup, setSortByGroup] = useState(false);
-  const [groupDesc, setGroupDesc] = useState(false);
+  // Defaults to plain alphabetical-by-name, same as before either sort
+  // existed. Clicking "Name" always gets back here.
+  const [sortMode, setSortMode] = useState<"name" | "group">("name");
+  const [desc, setDesc] = useState(false);
 
   const sorted = useMemo(() => {
-    if (!sortByGroup) {
-      return [...people].sort((a, b) => a.full_name.localeCompare(b.full_name));
+    const dir = desc ? -1 : 1;
+    if (sortMode === "name") {
+      return [...people].sort((a, b) => a.full_name.localeCompare(b.full_name) * dir);
     }
     // Unassigned people sort to the end regardless of direction -- the point
     // of this sort is clustering group-mates together, not burying them.
-    const dir = groupDesc ? -1 : 1;
     return [...people].sort((a, b) => {
       if (!a.group && !b.group) return a.full_name.localeCompare(b.full_name);
       if (!a.group) return 1;
@@ -48,15 +49,19 @@ export function PeopleDirectory({
       const byGroup = a.group.localeCompare(b.group) * dir;
       return byGroup !== 0 ? byGroup : a.full_name.localeCompare(b.full_name);
     });
-  }, [people, sortByGroup, groupDesc]);
+  }, [people, sortMode, desc]);
 
-  function toggleGroupSort() {
-    if (!sortByGroup) {
-      setSortByGroup(true);
-      setGroupDesc(false);
+  function clickSort(mode: "name" | "group") {
+    if (sortMode === mode) {
+      setDesc((d) => !d);
     } else {
-      setGroupDesc((d) => !d);
+      setSortMode(mode);
+      setDesc(false);
     }
+  }
+
+  function sortIndicator(mode: "name" | "group") {
+    return sortMode === mode ? (desc ? "▼" : "▲") : "↕";
   }
 
   return (
@@ -66,19 +71,26 @@ export function PeopleDirectory({
         <table className="w-full text-left text-sm">
           <thead className="bg-cream-soft text-xs font-semibold uppercase tracking-wide text-clay-500">
             <tr>
-              <th className="px-5 py-3">Name</th>
+              <th className="px-5 py-3">
+                <button
+                  type="button"
+                  onClick={() => clickSort("name")}
+                  className="inline-flex items-center gap-1 uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
+                >
+                  Name
+                  <span className="text-[10px] leading-none">{sortIndicator("name")}</span>
+                </button>
+              </th>
               <th className="px-5 py-3">Email</th>
               <th className="px-5 py-3">Phone</th>
               <th className="px-5 py-3">
                 <button
                   type="button"
-                  onClick={toggleGroupSort}
+                  onClick={() => clickSort("group")}
                   className="inline-flex items-center gap-1 uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
                 >
                   Small Group
-                  <span className="text-[10px] leading-none">
-                    {sortByGroup ? (groupDesc ? "▼" : "▲") : "↕"}
-                  </span>
+                  <span className="text-[10px] leading-none">{sortIndicator("group")}</span>
                 </button>
               </th>
               <th className="px-5 py-3" />
@@ -116,16 +128,22 @@ export function PeopleDirectory({
 
       {/* Small screens: cards. */}
       <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-clay-900/5 md:hidden">
-        <div className="flex items-center justify-end border-b border-clay-900/8 px-4 py-2.5">
+        <div className="flex items-center justify-end gap-4 border-b border-clay-900/8 px-4 py-2.5">
           <button
             type="button"
-            onClick={toggleGroupSort}
+            onClick={() => clickSort("name")}
             className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
           >
-            Sort by Small Group
-            <span className="text-[10px] leading-none">
-              {sortByGroup ? (groupDesc ? "▼" : "▲") : "↕"}
-            </span>
+            Name
+            <span className="text-[10px] leading-none">{sortIndicator("name")}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => clickSort("group")}
+            className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
+          >
+            Small Group
+            <span className="text-[10px] leading-none">{sortIndicator("group")}</span>
           </button>
         </div>
         <ul className="divide-y divide-clay-900/8">
