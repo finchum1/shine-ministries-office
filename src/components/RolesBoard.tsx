@@ -8,13 +8,14 @@ import { createClient } from "@/lib/supabase/client";
 import type { LeadershipRoleRow } from "@/lib/supabase-types";
 import { REORDER_SWAP_COOLDOWN_MS, REORDER_TRANSITION } from "@/lib/reorder-transition";
 
-type RoleColor = "terracotta" | "sage" | "lavender" | null;
+type RoleColor = "terracotta" | "sage" | "lavender" | "citrus" | null;
 
 const ROLE_COLORS: { value: RoleColor; label: string; swatch: string }[] = [
   { value: null, label: "None", swatch: "bg-white ring-1 ring-clay-900/15" },
   { value: "terracotta", label: "Terracotta", swatch: "bg-terracotta" },
   { value: "sage", label: "Sage", swatch: "bg-sage" },
   { value: "lavender", label: "Lavender", swatch: "bg-lavender" },
+  { value: "citrus", label: "Citrus", swatch: "bg-citrus" },
 ];
 
 function cardAccentClass(color: RoleColor) {
@@ -25,6 +26,8 @@ function cardAccentClass(color: RoleColor) {
       return "bg-sage/40 ring-sage/60";
     case "lavender":
       return "bg-lavender/40 ring-lavender/60";
+    case "citrus":
+      return "bg-citrus/40 ring-citrus/60";
     default:
       return "bg-white ring-clay-900/5";
   }

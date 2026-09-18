@@ -1,25 +1,37 @@
 @import "tailwindcss";
 
 :root {
-  /* Same palette as the public shine-ministries site, so this feels like the
-     same brand — trimmed to the tokens the office app actually uses. */
-  --color-cream: #fbf7f0;
-  --color-cream-soft: #f6efe3;
+  /* "Summer Escape" palette (2026-09-18 rebrand) — Sunset Peach / Sand Dune /
+     Citrus Zest / Sea Breeze / Palm Leaf / Ocean Depth. Same palette as the
+     public shine-ministries site — trimmed to the tokens the office app
+     actually uses. Light/dark tiers are computed from each anchor color
+     using the same proportional lighten/darken relationships the previous
+     palette used, not picked by eye. */
+  --color-cream: #faf7f4;
+  --color-cream-soft: #f4eee8;
 
-  --color-terracotta: #c15f3b;
-  --color-terracotta-dark: #9c4a2c;
-  --color-terracotta-light: #e3b7a0;
+  /* Sunset Peach — primary accent (CTAs, links, active states) */
+  --color-terracotta: #e9a67c;
+  --color-terracotta-dark: #e37a39;
+  --color-terracotta-light: #f5d4c0;
 
-  --color-sage: #93a17e;
-  --color-sage-dark: #6e7d5c;
-  --color-sage-light: #c7d0b9;
+  /* Palm Leaf — secondary accent */
+  --color-sage: #8fa98b;
+  --color-sage-dark: #688564;
+  --color-sage-light: #c3d4c0;
 
-  --color-lavender: #a89bc4;
-  --color-lavender-dark: #8574a3;
+  /* Sea Breeze — third accent */
+  --color-lavender: #a9c6c2;
+  --color-lavender-dark: #6f918c;
 
-  --color-clay-900: #453a2f;
-  --color-clay-700: #6b5c4c;
-  --color-clay-500: #8c7c6a;
+  /* Citrus Zest — fourth accent (Roles card color option) */
+  --color-citrus: #e6c15a;
+  --color-citrus-dark: #c6a036;
+
+  /* Ocean Depth — text neutrals */
+  --color-clay-900: #395b63;
+  --color-clay-700: #527c86;
+  --color-clay-500: #7197a0;
   --color-white: #ffffff;
 }
 
@@ -34,6 +46,8 @@
   --color-sage-light: var(--color-sage-light);
   --color-lavender: var(--color-lavender);
   --color-lavender-dark: var(--color-lavender-dark);
+  --color-citrus: var(--color-citrus);
+  --color-citrus-dark: var(--color-citrus-dark);
   --color-clay-900: var(--color-clay-900);
   --color-clay-700: var(--color-clay-700);
   --color-clay-500: var(--color-clay-500);
