@@ -112,6 +112,10 @@ export function FilesManager({
         .from("documents")
         .createSignedUrl(file.path, 60, { download: file.name });
       if (error) throw error;
+      // Navigating via window.location inside a click handler (not render or
+      // an effect) to trigger the browser's download -- not a React state
+      // mutation the new react-hooks/immutability rule needs to guard here.
+      // eslint-disable-next-line react-hooks/immutability
       window.location.href = data.signedUrl;
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Download failed.");

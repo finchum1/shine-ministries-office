@@ -188,12 +188,17 @@ export function LeftNav({
   const settingsActive = pathname.startsWith("/settings");
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Close the drawer on navigation, and don't let the page scroll behind it
-  // while it's open.
-  useEffect(() => {
+  // Close the drawer on navigation. Adjusted during render (React's
+  // recommended pattern for "reset state when a prop changes") rather than
+  // in an effect, so it takes effect on the same render as the navigation
+  // instead of one tick later.
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
     setMobileOpen(false);
-  }, [pathname]);
+  }
 
+  // Don't let the page scroll behind the drawer while it's open.
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => {

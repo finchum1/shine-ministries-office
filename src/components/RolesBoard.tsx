@@ -101,11 +101,21 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
 
   useEffect(() => {
     if (openId === null) return;
+    // This effect also has to imperatively set editorRef.current.innerHTML
+    // below (a real DOM sync, the sanctioned use of an effect), which can
+    // only happen once the modal's contentEditable div has mounted -- so the
+    // React-docs-recommended alternative of seeding these via a `key`-remount
+    // doesn't cover the whole job here. Seeding the plain state fields
+    // alongside it in the same effect, rather than splitting into a second
+    // "adjust state during render" block for just those, keeps the seeding
+    // atomic and easy to follow.
+    /* eslint-disable react-hooks/set-state-in-effect */
     setTitle(editingRole?.title ?? "");
     setAssignedName(editingRole?.assigned_name ?? "");
     setColor(editingRole?.color ?? null);
     setConfirmingDelete(false);
     setErrorMessage(null);
+    /* eslint-enable react-hooks/set-state-in-effect */
     if (editorRef.current) {
       editorRef.current.innerHTML = editingRole?.description_html ?? "";
     }
