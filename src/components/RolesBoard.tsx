@@ -80,6 +80,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
   const [roles, setRoles] = useState(initialRoles);
   const [openId, setOpenId] = useState<string | "new" | null>(null);
   const [title, setTitle] = useState("");
+  const [assignedName, setAssignedName] = useState("");
   const [color, setColor] = useState<RoleColor>(null);
   const [saving, setSaving] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -96,6 +97,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
   useEffect(() => {
     if (openId === null) return;
     setTitle(editingRole?.title ?? "");
+    setAssignedName(editingRole?.assigned_name ?? "");
     setColor(editingRole?.color ?? null);
     setConfirmingDelete(false);
     setErrorMessage(null);
@@ -125,6 +127,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
       return;
     }
     const descriptionHtml = editorRef.current?.innerHTML ?? "";
+    const trimmedName = assignedName.trim() || null;
 
     setSaving(true);
     setErrorMessage(null);
@@ -132,13 +135,13 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
       if (editingRole) {
         const { error } = await supabase
           .from("leadership_roles")
-          .update({ title: trimmedTitle, description_html: descriptionHtml, color })
+          .update({ title: trimmedTitle, assigned_name: trimmedName, description_html: descriptionHtml, color })
           .eq("id", editingRole.id);
         if (error) throw error;
         updateRoles(
           rolesRef.current.map((r) =>
             r.id === editingRole.id
-              ? { ...r, title: trimmedTitle, description_html: descriptionHtml, color }
+              ? { ...r, title: trimmedTitle, assigned_name: trimmedName, description_html: descriptionHtml, color }
               : r
           )
         );
@@ -146,7 +149,13 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
         const nextSortOrder = roles.length ? Math.max(...roles.map((r) => r.sort_order)) + 1 : 0;
         const { data, error } = await supabase
           .from("leadership_roles")
-          .insert({ title: trimmedTitle, description_html: descriptionHtml, color, sort_order: nextSortOrder })
+          .insert({
+            title: trimmedTitle,
+            assigned_name: trimmedName,
+            description_html: descriptionHtml,
+            color,
+            sort_order: nextSortOrder,
+          })
           .select()
           .single();
         if (error) throw error;
@@ -287,6 +296,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
               className="flex flex-1 flex-col items-start px-2 pb-2 pt-1 text-left"
             >
               <h2 className="font-display text-lg text-clay-900">{role.title}</h2>
+              <p className="mt-0.5 text-xs text-clay-500">{role.assigned_name || "Unassigned"}</p>
               <p className="mt-2 line-clamp-4 text-sm text-clay-700">
                 {role.description_html ? stripHtml(role.description_html) : "No description yet."}
               </p>
@@ -341,6 +351,12 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Role title"
                 className="w-full border-b border-clay-900/12 pb-2 font-display text-xl text-clay-900 outline-none focus:border-terracotta"
+              />
+              <input
+                value={assignedName}
+                onChange={(e) => setAssignedName(e.target.value)}
+                placeholder="Name"
+                className="mt-2 w-full border-b border-clay-900/12 pb-1.5 text-sm text-clay-700 outline-none focus:border-terracotta"
               />
 
               <div className="mt-4 flex items-center gap-3">
