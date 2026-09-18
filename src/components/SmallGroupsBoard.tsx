@@ -7,7 +7,7 @@ import { motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
 import { SunMark } from "@/components/icons/SunMark";
-import { REORDER_TRANSITION } from "@/lib/reorder-transition";
+import { REORDER_SWAP_COOLDOWN_MS, REORDER_TRANSITION } from "@/lib/reorder-transition";
 
 type Dragging = { kind: "person"; id: string } | { kind: "group"; id: string } | null;
 
@@ -88,6 +88,7 @@ export function SmallGroupsBoard({
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragOverIdRef = useRef<string | null>(null);
   const groupsRef = useRef(initialGroups);
+  const lastReorderAtRef = useRef(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const unassigned = people.filter((p) => !p.small_group_id);
@@ -200,13 +201,16 @@ export function SmallGroupsBoard({
       const targetId = target?.getAttribute(DROP_ATTR) ?? null;
       setDragOver(targetId);
 
+      const now = performance.now();
       if (
         dragging?.kind === "group" &&
         targetId &&
         targetId !== UNASSIGNED &&
-        targetId !== dragging.id
+        targetId !== dragging.id &&
+        now - lastReorderAtRef.current >= REORDER_SWAP_COOLDOWN_MS
       ) {
         liveReorderGroups(dragging.id, targetId);
+        lastReorderAtRef.current = now;
       }
     }
 

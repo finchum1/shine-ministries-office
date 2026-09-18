@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
 import type { LeadershipRoleRow } from "@/lib/supabase-types";
-import { REORDER_TRANSITION } from "@/lib/reorder-transition";
+import { REORDER_SWAP_COOLDOWN_MS, REORDER_TRANSITION } from "@/lib/reorder-transition";
 
 type RoleColor = "terracotta" | "sage" | "lavender" | null;
 
@@ -91,6 +91,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragOverIdRef = useRef<string | null>(null);
   const rolesRef = useRef(initialRoles);
+  const lastReorderAtRef = useRef(0);
 
   const editingRole = openId && openId !== "new" ? roles.find((r) => r.id === openId) : null;
 
@@ -243,8 +244,15 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
       const targetId = target?.getAttribute(DROP_ATTR) ?? null;
       setDragOver(targetId);
 
-      if (draggingId && targetId && targetId !== draggingId) {
+      const now = performance.now();
+      if (
+        draggingId &&
+        targetId &&
+        targetId !== draggingId &&
+        now - lastReorderAtRef.current >= REORDER_SWAP_COOLDOWN_MS
+      ) {
         liveReorder(draggingId, targetId);
+        lastReorderAtRef.current = now;
       }
     }
 
