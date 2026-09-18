@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
+import { SunMark } from "@/components/icons/SunMark";
 
 type Dragging = { kind: "person"; id: string } | { kind: "group"; id: string } | null;
 
@@ -29,7 +30,10 @@ const DROP_ATTR = "data-drop-id";
 // none, -webkit-touch-callout/-user-select disabled so iOS doesn't try to
 // select text or show its callout menu) rather than the whole row/card, so
 // a touch that starts on ordinary text still scrolls normally; only a
-// touch that starts on a grip is treated as a drag.
+// touch that starts on a grip is treated as a drag. The handle itself is a
+// generously padded 32px hit area (bigger than the sun mark drawn inside
+// it) since the icon glyph alone was too small a target to reliably grab
+// on a touch screen.
 const gripStyle: React.CSSProperties = {
   touchAction: "none",
   WebkitUserSelect: "none",
@@ -48,9 +52,9 @@ function GripIcon({
       aria-hidden
       onPointerDown={onPointerDown}
       style={gripStyle}
-      className={`select-none ${className}`}
+      className={`flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full transition-colors hover:bg-clay-900/5 ${className}`}
     >
-      ⠿
+      <SunMark className="h-5 w-5" />
     </span>
   );
 }
@@ -224,7 +228,7 @@ export function SmallGroupsBoard({
             {unassigned.map((person) => (
               <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
                 <GripIcon
-                  className="shrink-0 cursor-grab text-clay-400 active:cursor-grabbing"
+                  className="cursor-grab text-terracotta active:cursor-grabbing active:text-terracotta-dark"
                   onPointerDown={(e) => startDrag(e, { kind: "person", id: person.id })}
                 />
                 <span className="truncate">{person.full_name}</span>
@@ -243,9 +247,9 @@ export function SmallGroupsBoard({
 
           return (
             <div key={group.id} {...{ [DROP_ATTR]: group.id }} className={cardClass(group.id)}>
-              <div className="flex shrink-0 items-start gap-1.5">
+              <div className="flex shrink-0 items-center gap-1">
                 <GripIcon
-                  className="mt-0.5 shrink-0 cursor-grab text-clay-400 active:cursor-grabbing"
+                  className="cursor-grab text-terracotta active:cursor-grabbing active:text-terracotta-dark"
                   onPointerDown={(e) => startDrag(e, { kind: "group", id: group.id })}
                 />
                 <h2 className="min-w-0 flex-1 truncate font-display text-sm text-clay-900">
@@ -265,7 +269,7 @@ export function SmallGroupsBoard({
                 {members.map((person) => (
                   <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
                     <GripIcon
-                      className="shrink-0 cursor-grab text-clay-400 active:cursor-grabbing"
+                      className="cursor-grab text-terracotta active:cursor-grabbing active:text-terracotta-dark"
                       onPointerDown={(e) => startDrag(e, { kind: "person", id: person.id })}
                     />
                     <span className="truncate">{person.full_name}</span>
