@@ -18,11 +18,11 @@ const ROLE_COLORS: { value: RoleColor; label: string; swatch: string }[] = [
 function cardAccentClass(color: RoleColor) {
   switch (color) {
     case "terracotta":
-      return "bg-terracotta/10 ring-terracotta/25";
+      return "bg-terracotta/40 ring-terracotta/60";
     case "sage":
-      return "bg-sage/10 ring-sage/25";
+      return "bg-sage/40 ring-sage/60";
     case "lavender":
-      return "bg-lavender/10 ring-lavender/25";
+      return "bg-lavender/40 ring-lavender/60";
     default:
       return "bg-white ring-clay-900/5";
   }
