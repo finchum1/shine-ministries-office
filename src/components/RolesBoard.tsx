@@ -66,6 +66,10 @@ function GripIcon({ onPointerDown }: { onPointerDown: (e: React.PointerEvent) =>
     <span
       aria-hidden
       onPointerDown={onPointerDown}
+      // Sits inline with the card title (inside its click-to-open area), so
+      // a tap that lands on the grip without turning into a drag shouldn't
+      // also open the modal underneath it.
+      onClick={(e) => e.stopPropagation()}
       style={gripStyle}
       className="flex h-8 w-8 shrink-0 cursor-grab select-none items-center justify-center rounded-full text-base leading-none text-clay-400 transition-colors hover:bg-clay-900/5 active:cursor-grabbing active:text-clay-600"
     >
@@ -302,9 +306,6 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
               role.color
             )} ${dragOverId === role.id ? "ring-2 ring-terracotta" : ""}`}
           >
-            <div className="flex items-center gap-1">
-              <GripIcon onPointerDown={(e) => startDrag(e, role.id)} />
-            </div>
             <div
               role="button"
               tabIndex={0}
@@ -312,9 +313,14 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
               onKeyDown={(e) => {
                 if (e.key === "Enter" || e.key === " ") setOpenId(role.id);
               }}
-              className="flex flex-1 cursor-pointer flex-col items-start px-2 pb-2 pt-1 text-left"
+              className="flex flex-1 cursor-pointer flex-col items-start text-left"
             >
-              <h2 className="font-display text-lg text-clay-900">{role.title}</h2>
+              <div className="flex w-full items-center gap-1.5">
+                <GripIcon onPointerDown={(e) => startDrag(e, role.id)} />
+                <h2 className="min-w-0 flex-1 truncate font-display text-lg text-clay-900">
+                  {role.title}
+                </h2>
+              </div>
               <p className="mt-0.5 text-xs text-clay-500">{role.assigned_name || "Unassigned"}</p>
               {role.description_html ? (
                 <div
