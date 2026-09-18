@@ -2,29 +2,37 @@
 
 import { useState } from "react";
 
+// "Summer Escape" palette (2026-09-18 rebrand) -- keep in sync with the
+// :root custom properties in src/app/globals.css. This page is a plain
+// hardcoded reference (not read from the CSS variables), so it has to be
+// updated by hand whenever the palette changes.
 const palette = [
   { group: "Cream", swatches: [
-    { name: "cream", hex: "#fbf7f0" },
-    { name: "cream-soft", hex: "#f6efe3" },
+    { name: "cream", hex: "#faf7f4" },
+    { name: "cream-soft", hex: "#f4eee8" },
   ]},
   { group: "Terracotta", swatches: [
-    { name: "terracotta-light", hex: "#e3b7a0" },
-    { name: "terracotta", hex: "#c15f3b" },
-    { name: "terracotta-dark", hex: "#9c4a2c" },
+    { name: "terracotta-light", hex: "#f5d4c0" },
+    { name: "terracotta", hex: "#e9a67c" },
+    { name: "terracotta-dark", hex: "#e37a39" },
   ]},
   { group: "Sage", swatches: [
-    { name: "sage-light", hex: "#c7d0b9" },
-    { name: "sage", hex: "#93a17e" },
-    { name: "sage-dark", hex: "#6e7d5c" },
+    { name: "sage-light", hex: "#c3d4c0" },
+    { name: "sage", hex: "#8fa98b" },
+    { name: "sage-dark", hex: "#688564" },
   ]},
   { group: "Lavender", swatches: [
-    { name: "lavender", hex: "#a89bc4" },
-    { name: "lavender-dark", hex: "#8574a3" },
+    { name: "lavender", hex: "#a9c6c2" },
+    { name: "lavender-dark", hex: "#6f918c" },
+  ]},
+  { group: "Citrus", swatches: [
+    { name: "citrus", hex: "#e6c15a" },
+    { name: "citrus-dark", hex: "#c6a036" },
   ]},
   { group: "Clay (text)", swatches: [
-    { name: "clay-500", hex: "#8c7c6a" },
-    { name: "clay-700", hex: "#6b5c4c" },
-    { name: "clay-900", hex: "#453a2f" },
+    { name: "clay-500", hex: "#7197a0" },
+    { name: "clay-700", hex: "#527c86" },
+    { name: "clay-900", hex: "#395b63" },
   ]},
 ];
 
