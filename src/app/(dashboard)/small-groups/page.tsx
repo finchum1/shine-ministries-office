@@ -2,7 +2,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
 import { SmallGroupsBoard } from "@/components/SmallGroupsBoard";
-import { deleteSmallGroup } from "./actions";
 
 export default async function SmallGroupsPage() {
   const supabase = await createClient();
@@ -26,8 +25,8 @@ export default async function SmallGroupsPage() {
           <h1 className="font-display text-2xl text-clay-900">Small Groups</h1>
           <p className="mt-1 text-sm text-clay-700">
             Drag a name from &ldquo;Not in a Group&rdquo; onto a group to place them, or drag a
-            group&rsquo;s ⠿ handle to reorder. Deleting a group returns its people to
-            &ldquo;Not in a Group.&rdquo;
+            group&rsquo;s ⠿ handle to reorder. Manage a group to rename it or delete it --
+            deleting returns its people to &ldquo;Not in a Group.&rdquo;
           </p>
         </div>
         <Link
@@ -44,11 +43,7 @@ export default async function SmallGroupsPage() {
         </p>
       )}
 
-      <SmallGroupsBoard
-        initialGroups={groups}
-        initialPeople={people}
-        deleteSmallGroup={deleteSmallGroup}
-      />
+      <SmallGroupsBoard initialGroups={groups} initialPeople={people} />
     </div>
   );
 }

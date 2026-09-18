@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
-import { updateSmallGroupDetails, setLeader, addMembers, removeMember } from "../actions";
+import { DeleteSmallGroupButton } from "@/components/DeleteSmallGroupButton";
+import { updateSmallGroupDetails, setLeader, addMembers, removeMember, deleteSmallGroup } from "../actions";
 
 const inputClass =
   "w-full rounded-xl border border-clay-900/12 bg-cream px-4 py-3 text-sm text-clay-900 outline-none transition-shadow placeholder:text-clay-500 focus:border-terracotta focus:ring-2 focus:ring-terracotta/30";
@@ -31,7 +33,22 @@ export default async function ManageSmallGroupPage({
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-clay-900">{group.name}</h1>
+      <div className="flex items-center gap-2">
+        <Link
+          href="/small-groups"
+          aria-label="Back to Small Groups"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-clay-500 transition-colors hover:bg-clay-900/5 hover:text-terracotta-dark"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+            <path
+              fillRule="evenodd"
+              d="M12.53 4.22a.75.75 0 0 1 0 1.06L7.81 10l4.72 4.72a.75.75 0 1 1-1.06 1.06l-5.25-5.25a.75.75 0 0 1 0-1.06l5.25-5.25a.75.75 0 0 1 1.06 0Z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </Link>
+        <h1 className="font-display text-2xl text-clay-900">{group.name}</h1>
+      </div>
       <p className="mt-1 text-sm text-clay-700">
         Set the leader, and add or remove people from this group.
       </p>
@@ -85,6 +102,10 @@ export default async function ManageSmallGroupPage({
               </button>
             </div>
           </form>
+
+          <div className="mt-6 border-t border-clay-900/8 pt-4">
+            <DeleteSmallGroupButton deleteAction={deleteSmallGroup.bind(null, group.id)} />
+          </div>
 
           <h2 className="mt-8 font-display text-lg text-clay-900">Leader</h2>
           <form action={setLeader.bind(null, group.id)} className="mt-4 flex gap-3">
