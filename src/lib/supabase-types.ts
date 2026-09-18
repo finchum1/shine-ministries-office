@@ -98,6 +98,14 @@ export type SmallGroupRow = {
   created_at: string;
 };
 
+export type LeadershipRoleRow = {
+  id: string;
+  title: string;
+  description_html: string | null;
+  sort_order: number;
+  created_at: string;
+};
+
 // site_settings is a generic key/value store — these are the shapes for the
 // keys the Content editor manages. Mirrors src/lib/settings.ts in the main
 // shine-ministries repo.
