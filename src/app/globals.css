@@ -13,9 +13,12 @@
   --color-cream: #faf7f4;
   --color-cream-soft: #f4eee8;
 
-  /* Sunset Peach — primary accent (CTAs, links, active states) */
-  --color-terracotta: #e9a67c;
-  --color-terracotta-light: #f5d4c0;
+  /* Sunset Peach — primary accent (CTAs, links, active states). Lightened
+     2026-09-19 from the original swatch (#e9a67c) to this exact hex at
+     Terrence's request -- the big solid-color bands on the public site were
+     reading too saturated/orange. */
+  --color-terracotta: #f5d4c0;
+  --color-terracotta-light: #fbeae1;
 
   /* Palm Leaf — secondary accent */
   --color-sage: #8fa98b;

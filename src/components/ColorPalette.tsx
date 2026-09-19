@@ -15,8 +15,8 @@ const palette = [
     { name: "Sand Dune", hex: "#f4eee8" },
   ]},
   { group: "Sunset Peach", swatches: [
-    { name: "Sunset Peach Light", hex: "#f5d4c0" },
-    { name: "Sunset Peach", hex: "#e9a67c" },
+    { name: "Sunset Peach Light", hex: "#fbeae1" },
+    { name: "Sunset Peach", hex: "#f5d4c0" },
   ]},
   { group: "Palm Leaf", swatches: [
     { name: "Palm Leaf Light", hex: "#c3d4c0" },
