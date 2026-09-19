@@ -16,8 +16,12 @@
   /* Sunset Peach — primary accent (CTAs, links, active states). Lightened
      2026-09-19 from the original swatch (#e9a67c) to this exact hex at
      Terrence's request -- the big solid-color bands on the public site were
-     reading too saturated/orange. */
+     reading too saturated/orange. The original swatch was re-added as a
+     third, darker tier the same day (not wired into any component's text/
+     hover color -- that's what got removed for contrast reasons earlier;
+     this is just the color made available in the palette again). */
   --color-terracotta: #f5d4c0;
+  --color-terracotta-dark: #e9a67c;
   --color-terracotta-light: #fbeae1;
 
   /* Palm Leaf — secondary accent */
@@ -43,6 +47,7 @@
   --color-cream: var(--color-cream);
   --color-cream-soft: var(--color-cream-soft);
   --color-terracotta: var(--color-terracotta);
+  --color-terracotta-dark: var(--color-terracotta-dark);
   --color-terracotta-light: var(--color-terracotta-light);
   --color-sage: var(--color-sage);
   --color-sage-light: var(--color-sage-light);
