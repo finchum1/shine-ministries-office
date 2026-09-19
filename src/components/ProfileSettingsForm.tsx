@@ -62,7 +62,7 @@ export function ProfileSettingsForm({
   return (
     <div className="space-y-6">
       {errorMessage && (
-        <p className="rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           {errorMessage}
         </p>
       )}
@@ -75,7 +75,7 @@ export function ProfileSettingsForm({
       <div>
         <p className="mb-1.5 text-sm font-medium text-clay-700">Profile photo</p>
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sage/20 text-lg font-semibold text-sage-dark">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sage/20 text-lg font-semibold text-clay-900">
             {avatarUrl ? (
               // eslint-disable-next-line @next/next/no-img-element -- admin-only preview, arbitrary user upload
               <img src={avatarUrl} alt="Profile" className="h-full w-full object-cover" />
@@ -83,7 +83,7 @@ export function ProfileSettingsForm({
               (email[0] ?? "?").toUpperCase()
             )}
           </div>
-          <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-terracotta-dark">
+          <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-clay-900">
             {busy ? "Uploading…" : avatarUrl ? "Replace photo" : "Upload photo"}
             <input
               ref={fileInputRef}

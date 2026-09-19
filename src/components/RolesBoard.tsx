@@ -302,7 +302,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
         <button
           type="button"
           onClick={() => setOpenId("new")}
-          className="inline-flex items-center gap-1 rounded-full bg-sage px-4 py-2 text-xs font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+          className="inline-flex items-center gap-1 rounded-full bg-sage px-4 py-2 text-xs font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
         >
           <span className="text-sm leading-none">+</span> New Role
         </button>
@@ -366,7 +366,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
                   <Link
                     href={`/roles/${editingRole.id}/print`}
                     target="_blank"
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                    className="text-sm font-medium text-clay-500 hover:text-clay-900"
                   >
                     Print
                   </Link>
@@ -384,7 +384,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
 
             <div className="flex-1 overflow-y-auto px-6 py-5">
               {errorMessage && (
-                <p className="mb-4 rounded-xl bg-terracotta-light/30 p-3 text-sm text-terracotta-dark">
+                <p className="mb-4 rounded-xl bg-terracotta-light/30 p-3 text-sm text-clay-900">
                   {errorMessage}
                 </p>
               )}
@@ -451,19 +451,19 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
                   <button
                     type="button"
                     onClick={() => setConfirmingDelete(true)}
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                    className="text-sm font-medium text-clay-500 hover:text-clay-900"
                   >
                     Delete role
                   </button>
                 )}
                 {editingRole && confirmingDelete && (
                   <span className="flex items-center gap-3 text-sm">
-                    <span className="text-terracotta-dark">Delete this role?</span>
+                    <span className="text-clay-900">Delete this role?</span>
                     <button
                       type="button"
                       onClick={handleDelete}
                       disabled={saving}
-                      className="font-semibold text-terracotta-dark hover:underline"
+                      className="font-semibold text-clay-900 hover:underline"
                     >
                       {saving ? "Deleting…" : "Confirm"}
                     </button>
@@ -489,7 +489,7 @@ export function RolesBoard({ initialRoles }: { initialRoles: LeadershipRoleRow[]
                   type="button"
                   onClick={handleSave}
                   disabled={saving}
-                  className="rounded-full bg-sage px-6 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark disabled:opacity-60"
+                  className="rounded-full bg-sage px-6 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95 disabled:opacity-60"
                 >
                   {saving ? "Saving…" : "Save"}
                 </button>

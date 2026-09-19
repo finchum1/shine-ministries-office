@@ -37,7 +37,7 @@ export default async function ManageSmallGroupPage({
         <Link
           href="/small-groups"
           aria-label="Back to Small Groups"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-clay-500 transition-colors hover:bg-clay-900/5 hover:text-terracotta-dark"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-clay-500 transition-colors hover:bg-clay-900/5 hover:text-clay-900"
         >
           <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
             <path
@@ -96,7 +96,7 @@ export default async function ManageSmallGroupPage({
             <div>
               <button
                 type="submit"
-                className="rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+                className="rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
               >
                 Save details
               </button>
@@ -136,7 +136,7 @@ export default async function ManageSmallGroupPage({
             </select>
             <button
               type="submit"
-              className="shrink-0 rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+              className="shrink-0 rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
             >
               Save
             </button>
@@ -154,7 +154,7 @@ export default async function ManageSmallGroupPage({
                 <span className="text-sm text-clay-900">
                   {person.full_name}
                   {person.id === group.leader_id && (
-                    <span className="ml-1.5 text-xs font-semibold text-terracotta-dark">
+                    <span className="ml-1.5 text-xs font-semibold text-clay-900">
                       (Leader)
                     </span>
                   )}
@@ -162,7 +162,7 @@ export default async function ManageSmallGroupPage({
                 <form action={removeMember.bind(null, group.id, person.id)}>
                   <button
                     type="submit"
-                    className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                    className="text-sm font-medium text-clay-500 hover:text-clay-900"
                   >
                     Remove
                   </button>
@@ -205,7 +205,7 @@ export default async function ManageSmallGroupPage({
           {unassigned.length > 0 && (
             <button
               type="submit"
-              className="mt-4 inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+              className="mt-4 inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
             >
               Add selected
             </button>

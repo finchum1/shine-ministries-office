@@ -157,7 +157,7 @@ function ProfileFooter({
           settingsActive ? "bg-clay-900/8" : "hover:bg-clay-900/5"
         }`}
       >
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sage/20 text-sm font-semibold text-sage-dark">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sage/20 text-sm font-semibold text-clay-900">
           {avatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element -- small nav avatar, arbitrary user upload
             <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
@@ -167,7 +167,7 @@ function ProfileFooter({
         </div>
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-clay-900">{email ?? "Signed in"}</p>
-          <p className="text-xs font-bold uppercase tracking-wide text-terracotta-dark">Admin</p>
+          <p className="text-xs font-bold uppercase tracking-wide text-clay-900">Admin</p>
         </div>
       </Link>
       <div className="mt-3">

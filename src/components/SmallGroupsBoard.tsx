@@ -65,7 +65,7 @@ function GroupGrip({ onPointerDown }: { onPointerDown: (e: React.PointerEvent) =
       aria-hidden
       onPointerDown={onPointerDown}
       style={gripStyle}
-      className={`${gripBase} text-terracotta active:text-terracotta-dark`}
+      className={`${gripBase} text-terracotta active:text-clay-900`}
       title="Drag to reorder"
     >
       <SunMark className="h-5 w-5" />
@@ -248,7 +248,7 @@ export function SmallGroupsBoard({
   return (
     <div>
       {errorMessage && (
-        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           {errorMessage}
         </p>
       )}
@@ -295,12 +295,12 @@ export function SmallGroupsBoard({
                 <h2 className="min-w-0 flex-1 truncate font-display text-sm text-clay-900">
                   {group.name}
                 </h2>
-                <span className="shrink-0 rounded-full bg-sage/15 px-2 py-0.5 text-xs font-medium text-sage-dark">
+                <span className="shrink-0 rounded-full bg-sage/15 px-2 py-0.5 text-xs font-medium text-clay-900">
                   {members.length}
                 </span>
               </div>
 
-              <p className="mt-0.5 shrink-0 truncate text-xs font-semibold uppercase tracking-wide text-terracotta-dark">
+              <p className="mt-0.5 shrink-0 truncate text-xs font-semibold uppercase tracking-wide text-clay-900">
                 {leader ? leader.full_name : "No leader"}
               </p>
               {meta && <p className="shrink-0 truncate text-xs text-clay-500">{meta}</p>}
@@ -319,7 +319,7 @@ export function SmallGroupsBoard({
 
               <Link
                 href={`/small-groups/${group.id}`}
-                className="mt-3 shrink-0 border-t border-clay-900/8 pt-3 text-sm font-medium text-terracotta-dark hover:underline"
+                className="mt-3 shrink-0 border-t border-clay-900/8 pt-3 text-sm font-medium text-clay-900 hover:underline"
               >
                 Manage
               </Link>

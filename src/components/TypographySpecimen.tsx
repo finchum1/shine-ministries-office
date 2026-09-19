@@ -20,7 +20,7 @@ export function TypographySpecimen() {
         <p className="text-base leading-relaxed text-clay-900">
           Gathering and empowering women to cultivate a healthy soul to shine His glory.
         </p>
-        <p className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-terracotta-dark">
+        <p className="mt-2 text-sm font-semibold uppercase tracking-[0.2em] text-clay-900">
           Eyebrow / label style
         </p>
         <p className="mt-4 text-sm leading-relaxed text-clay-700">

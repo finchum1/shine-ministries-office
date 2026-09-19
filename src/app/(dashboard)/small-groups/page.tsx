@@ -31,14 +31,14 @@ export default async function SmallGroupsPage() {
         </div>
         <Link
           href="/small-groups/new"
-          className="inline-flex items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+          className="inline-flex items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
         >
           New Small Group
         </Link>
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           Couldn&rsquo;t load small groups: {error.message}
         </p>
       )}

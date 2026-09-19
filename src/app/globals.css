@@ -5,18 +5,20 @@
      picture after a brief "Honey Jar" round, per Terrence's request. Light/
      dark tiers are computed from each anchor color using the same
      proportional lighten/darken relationships used every round, not picked
-     by eye. */
+     by eye. Sunset Peach Dark and Palm Leaf Dark were dropped from the
+     palette entirely (2026-09-19) -- every place that used them for text
+     now uses clay-900 instead (better contrast anyway: neither dark tier
+     actually met WCAG AA for body text), and button hover states that used
+     sage-dark now darken via a brightness filter instead of a named color. */
   --color-cream: #faf7f4;
   --color-cream-soft: #f4eee8;
 
   /* Sunset Peach — primary accent (CTAs, links, active states) */
   --color-terracotta: #e9a67c;
-  --color-terracotta-dark: #e37a39;
   --color-terracotta-light: #f5d4c0;
 
   /* Palm Leaf — secondary accent */
   --color-sage: #8fa98b;
-  --color-sage-dark: #688564;
   --color-sage-light: #c3d4c0;
 
   /* Sea Breeze — third accent */
@@ -38,10 +40,8 @@
   --color-cream: var(--color-cream);
   --color-cream-soft: var(--color-cream-soft);
   --color-terracotta: var(--color-terracotta);
-  --color-terracotta-dark: var(--color-terracotta-dark);
   --color-terracotta-light: var(--color-terracotta-light);
   --color-sage: var(--color-sage);
-  --color-sage-dark: var(--color-sage-dark);
   --color-sage-light: var(--color-sage-light);
   --color-lavender: var(--color-lavender);
   --color-lavender-dark: var(--color-lavender-dark);

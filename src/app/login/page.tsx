@@ -15,7 +15,7 @@ export default function LoginPage() {
             className="h-16 w-auto"
           />
         </div>
-        <p className="mt-6 text-center text-sm font-semibold uppercase tracking-[0.2em] text-sage-dark">
+        <p className="mt-6 text-center text-sm font-semibold uppercase tracking-[0.2em] text-clay-900">
           Office
         </p>
         <h1 className="mt-2 text-center font-display text-2xl text-clay-900">Sign in</h1>

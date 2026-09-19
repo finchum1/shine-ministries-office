@@ -13,7 +13,7 @@ export type PersonWithGroupName = {
 
 function GroupBadge({ group }: { group: string | null }) {
   return group ? (
-    <span className="rounded-full bg-sage/15 px-2.5 py-1 text-xs font-medium text-sage-dark">
+    <span className="rounded-full bg-sage/15 px-2.5 py-1 text-xs font-medium text-clay-900">
       {group}
     </span>
   ) : (
@@ -75,7 +75,7 @@ export function PeopleDirectory({
                 <button
                   type="button"
                   onClick={() => clickSort("name")}
-                  className="inline-flex items-center gap-1 uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
+                  className="inline-flex items-center gap-1 uppercase tracking-wide text-clay-500 transition-colors hover:text-clay-900"
                 >
                   Name
                   <span className="text-[10px] leading-none">{sortIndicator("name")}</span>
@@ -87,7 +87,7 @@ export function PeopleDirectory({
                 <button
                   type="button"
                   onClick={() => clickSort("group")}
-                  className="inline-flex items-center gap-1 uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
+                  className="inline-flex items-center gap-1 uppercase tracking-wide text-clay-500 transition-colors hover:text-clay-900"
                 >
                   Small Group
                   <span className="text-[10px] leading-none">{sortIndicator("group")}</span>
@@ -132,7 +132,7 @@ export function PeopleDirectory({
           <button
             type="button"
             onClick={() => clickSort("name")}
-            className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
+            className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-clay-500 transition-colors hover:text-clay-900"
           >
             Name
             <span className="text-[10px] leading-none">{sortIndicator("name")}</span>
@@ -140,7 +140,7 @@ export function PeopleDirectory({
           <button
             type="button"
             onClick={() => clickSort("group")}
-            className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-clay-500 transition-colors hover:text-terracotta-dark"
+            className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-clay-500 transition-colors hover:text-clay-900"
           >
             Small Group
             <span className="text-[10px] leading-none">{sortIndicator("group")}</span>

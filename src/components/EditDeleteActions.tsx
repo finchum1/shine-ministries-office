@@ -29,13 +29,13 @@ export function EditDeleteActions({ editHref, deleteAction, itemLabel, variant }
     return (
       <div className="mt-3 border-t border-clay-900/8 pt-3">
         <div className="flex items-center justify-between gap-3 rounded-lg bg-terracotta-light/25 px-3 py-2">
-          <span className="text-sm font-medium text-terracotta-dark">Delete this {itemLabel}?</span>
+          <span className="text-sm font-medium text-clay-900">Delete this {itemLabel}?</span>
           <span className="flex shrink-0 items-center gap-3">
             <button
               type="button"
               onClick={handleConfirm}
               disabled={isPending}
-              className="text-sm font-semibold text-terracotta-dark hover:underline"
+              className="text-sm font-semibold text-clay-900 hover:underline"
             >
               {isPending ? "Deleting…" : "Confirm"}
             </button>
@@ -61,7 +61,7 @@ export function EditDeleteActions({ editHref, deleteAction, itemLabel, variant }
           type="button"
           onClick={handleConfirm}
           disabled={isPending}
-          className="text-sm font-semibold text-terracotta-dark hover:underline"
+          className="text-sm font-semibold text-clay-900 hover:underline"
         >
           {isPending ? "Deleting…" : "Confirm"}
         </button>
@@ -80,13 +80,13 @@ export function EditDeleteActions({ editHref, deleteAction, itemLabel, variant }
   if (variant === "card") {
     return (
       <div className="mt-3 flex items-center gap-4 border-t border-clay-900/8 pt-3">
-        <Link href={editHref} className="text-sm font-medium text-terracotta-dark hover:underline">
+        <Link href={editHref} className="text-sm font-medium text-clay-900 hover:underline">
           Edit
         </Link>
         <button
           type="button"
           onClick={() => setConfirming(true)}
-          className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+          className="text-sm font-medium text-clay-500 hover:text-clay-900"
         >
           Delete
         </button>
@@ -96,13 +96,13 @@ export function EditDeleteActions({ editHref, deleteAction, itemLabel, variant }
 
   return (
     <span className="inline-flex items-center gap-3">
-      <Link href={editHref} className="text-sm font-medium text-terracotta-dark hover:underline">
+      <Link href={editHref} className="text-sm font-medium text-clay-900 hover:underline">
         Edit
       </Link>
       <button
         type="button"
         onClick={() => setConfirming(true)}
-        className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+        className="text-sm font-medium text-clay-500 hover:text-clay-900"
       >
         Delete
       </button>

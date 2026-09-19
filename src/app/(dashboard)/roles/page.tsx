@@ -21,7 +21,7 @@ export default async function RolesPage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           Couldn&rsquo;t load roles: {error.message}
         </p>
       )}

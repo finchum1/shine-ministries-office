@@ -47,13 +47,13 @@ export default async function PeoplePage() {
         <div className="flex items-center gap-3">
           <Link
             href="/people/import"
-            className="inline-flex items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-terracotta-dark"
+            className="inline-flex items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-clay-900"
           >
             Add Multiple
           </Link>
           <Link
             href="/people/new"
-            className="inline-flex items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+            className="inline-flex items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
           >
             Add Person
           </Link>
@@ -61,7 +61,7 @@ export default async function PeoplePage() {
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           Couldn&rsquo;t load people: {error.message}
         </p>
       )}

@@ -6,7 +6,9 @@ import { useState } from "react";
 // after a brief "Honey Jar" round, per Terrence's request. Keep in sync with
 // the :root custom properties in src/app/globals.css. This page is a plain
 // hardcoded reference (not read from the CSS variables), so it has to be
-// updated by hand whenever the palette changes.
+// updated by hand whenever the palette changes. Sunset Peach Dark and Palm
+// Leaf Dark were dropped from the palette entirely (2026-09-19) -- no
+// longer used anywhere in the app, so no longer listed here either.
 const palette = [
   { group: "Sand Dune", swatches: [
     { name: "Sand Dune Light", hex: "#faf7f4" },
@@ -15,12 +17,10 @@ const palette = [
   { group: "Sunset Peach", swatches: [
     { name: "Sunset Peach Light", hex: "#f5d4c0" },
     { name: "Sunset Peach", hex: "#e9a67c" },
-    { name: "Sunset Peach Dark", hex: "#e37a39" },
   ]},
   { group: "Palm Leaf", swatches: [
     { name: "Palm Leaf Light", hex: "#c3d4c0" },
     { name: "Palm Leaf", hex: "#8fa98b" },
-    { name: "Palm Leaf Dark", hex: "#688564" },
   ]},
   { group: "Sea Breeze", swatches: [
     { name: "Sea Breeze", hex: "#a9c6c2" },

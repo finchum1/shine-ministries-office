@@ -68,7 +68,7 @@ function AssetGroup({
           <h2 className="font-display text-lg text-clay-900">{title}</h2>
           <p className="mt-1 text-sm text-clay-700">{hint}</p>
         </div>
-        <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark">
+        <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95">
           {busy ? "Working…" : "Add"}
           <input
             ref={inputRef}
@@ -102,7 +102,7 @@ function AssetGroup({
               <button
                 type="button"
                 onClick={() => downloadAsset(asset)}
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-clay-500 transition-colors hover:bg-clay-900/5 hover:text-terracotta-dark"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-clay-500 transition-colors hover:bg-clay-900/5 hover:text-clay-900"
                 aria-label={`Download ${asset.label ?? title}`}
                 title="Download PNG"
               >
@@ -179,7 +179,7 @@ export function BrandAssetsManager({
   return (
     <div className="space-y-10">
       {errorMessage && (
-        <p className="rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           {errorMessage}
         </p>
       )}

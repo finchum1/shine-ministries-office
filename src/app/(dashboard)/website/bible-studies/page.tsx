@@ -22,14 +22,14 @@ export default async function BibleStudiesPage() {
         </div>
         <Link
           href="/website/bible-studies/new"
-          className="inline-flex items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark"
+          className="inline-flex items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
         >
           New Bible Study
         </Link>
       </div>
 
       {error && (
-        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="mt-6 rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           Couldn&rsquo;t load Bible studies: {error.message}
         </p>
       )}
@@ -58,7 +58,7 @@ export default async function BibleStudiesPage() {
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                       study.is_active
-                        ? "bg-sage/15 text-sage-dark"
+                        ? "bg-sage/15 text-clay-900"
                         : "bg-clay-900/8 text-clay-500"
                     }`}
                   >
@@ -104,7 +104,7 @@ export default async function BibleStudiesPage() {
                 <span
                   className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${
                     study.is_active
-                      ? "bg-sage/15 text-sage-dark"
+                      ? "bg-sage/15 text-clay-900"
                       : "bg-clay-900/8 text-clay-500"
                   }`}
                 >

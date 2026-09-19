@@ -38,11 +38,11 @@ export function LoginForm() {
           placeholder="••••••••"
         />
       </div>
-      {state?.error && <p className="text-sm text-terracotta-dark">{state.error}</p>}
+      {state?.error && <p className="text-sm text-clay-900">{state.error}</p>}
       <button
         type="submit"
         disabled={pending}
-        className="mt-2 inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark disabled:opacity-60"
+        className="mt-2 inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95 disabled:opacity-60"
       >
         {pending ? "Signing in…" : "Sign in"}
       </button>

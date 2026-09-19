@@ -144,7 +144,7 @@ export function PhotosManager({
   return (
     <div className="mt-8 space-y-10">
       {errorMessage && (
-        <p className="rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           {errorMessage}
         </p>
       )}
@@ -159,7 +159,7 @@ export function PhotosManager({
               <img src={founderPhoto.url} alt="Founder" className="h-full w-full object-cover" />
             )}
           </div>
-          <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-terracotta-dark">
+          <label className="inline-flex cursor-pointer items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-clay-900">
             {busy ? "Working…" : founderPhoto ? "Replace photo" : "Upload photo"}
             <input
               ref={founderInputRef}
@@ -181,7 +181,7 @@ export function PhotosManager({
               The photo grid on the About page. Drag to reorder.
             </p>
           </div>
-          <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark">
+          <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95">
             {busy ? "Working…" : "Add photos"}
             <input
               ref={groupInputRef}
@@ -228,7 +228,7 @@ export function PhotosManager({
               <button
                 onClick={() => handleDeleteGroupPhoto(photo)}
                 disabled={busy}
-                className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-clay-700 opacity-0 shadow-sm transition-opacity hover:text-terracotta-dark group-hover:opacity-100"
+                className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-clay-700 opacity-0 shadow-sm transition-opacity hover:text-clay-900 group-hover:opacity-100"
                 aria-label="Delete photo"
               >
                 ×

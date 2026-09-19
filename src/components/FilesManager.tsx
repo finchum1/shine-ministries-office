@@ -9,7 +9,7 @@ import { createFolder, deleteFolder, deleteFile } from "@/app/(dashboard)/files/
 
 function FolderIcon() {
   return (
-    <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 shrink-0 text-sage-dark">
+    <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 shrink-0 text-clay-900">
       <path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4.086a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 0 11.12 6.5H16.5A1.5 1.5 0 0 1 18 8v6.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 2 14.5v-9Z" />
     </svg>
   );
@@ -170,7 +170,7 @@ export function FilesManager({
   return (
     <div>
       {errorMessage && (
-        <p className="mb-4 rounded-xl bg-terracotta-light/30 p-4 text-sm text-terracotta-dark">
+        <p className="mb-4 rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">
           {errorMessage}
         </p>
       )}
@@ -197,11 +197,11 @@ export function FilesManager({
           <button
             type="button"
             onClick={() => setShowNewFolder((s) => !s)}
-            className="inline-flex items-center justify-center rounded-full border border-clay-900/15 px-4 py-2 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-terracotta-dark"
+            className="inline-flex items-center justify-center rounded-full border border-clay-900/15 px-4 py-2 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-clay-900"
           >
             New folder
           </button>
-          <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:bg-sage-dark">
+          <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95">
             {busy ? "Working…" : "Upload"}
             <input
               ref={fileInputRef}
@@ -227,14 +227,14 @@ export function FilesManager({
           <button
             type="submit"
             disabled={busy}
-            className="rounded-full bg-sage px-4 py-2.5 text-sm font-medium text-cream transition-colors hover:bg-sage-dark"
+            className="rounded-full bg-sage px-4 py-2.5 text-sm font-medium text-cream transition-colors hover:brightness-95"
           >
             Create
           </button>
           <button
             type="button"
             onClick={() => setShowNewFolder(false)}
-            className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+            className="text-sm font-medium text-clay-500 hover:text-clay-900"
           >
             Cancel
           </button>
@@ -256,7 +256,7 @@ export function FilesManager({
                 <td className="px-5 py-3">
                   <Link
                     href={`/files?folder=${folder.id}`}
-                    className="flex items-center gap-2.5 font-medium text-clay-900 hover:text-terracotta-dark"
+                    className="flex items-center gap-2.5 font-medium text-clay-900 hover:text-clay-900"
                   >
                     <FolderIcon />
                     {folder.name}
@@ -270,7 +270,7 @@ export function FilesManager({
                       <button
                         onClick={() => handleDeleteFolder(folder)}
                         disabled={busy}
-                        className="text-sm font-semibold text-terracotta-dark hover:underline"
+                        className="text-sm font-semibold text-clay-900 hover:underline"
                       >
                         Confirm
                       </button>
@@ -286,7 +286,7 @@ export function FilesManager({
                     <button
                       onClick={() => setConfirmingId(folder.id)}
                       disabled={busy}
-                      className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                      className="text-sm font-medium text-clay-500 hover:text-clay-900"
                     >
                       Delete
                     </button>
@@ -306,7 +306,7 @@ export function FilesManager({
                 <td className="px-5 py-3 text-right">
                   <button
                     onClick={() => handleDownload(file)}
-                    className="mr-3 inline-flex items-center gap-1 text-sm font-medium text-terracotta-dark hover:underline"
+                    className="mr-3 inline-flex items-center gap-1 text-sm font-medium text-clay-900 hover:underline"
                   >
                     <DownloadIcon />
                     Download
@@ -317,7 +317,7 @@ export function FilesManager({
                       <button
                         onClick={() => handleDeleteFile(file)}
                         disabled={busy}
-                        className="text-sm font-semibold text-terracotta-dark hover:underline"
+                        className="text-sm font-semibold text-clay-900 hover:underline"
                       >
                         Confirm
                       </button>
@@ -333,7 +333,7 @@ export function FilesManager({
                     <button
                       onClick={() => setConfirmingId(file.id)}
                       disabled={busy}
-                      className="text-sm font-medium text-clay-500 hover:text-terracotta-dark"
+                      className="text-sm font-medium text-clay-500 hover:text-clay-900"
                     >
                       Delete
                     </button>
