@@ -2,40 +2,38 @@
 
 import { useState } from "react";
 
-// "Honey Jar" palette (2026-09-19 rebrand, round 2) -- keep in sync with the
-// :root custom properties in src/app/globals.css. This page is a plain
+// "Summer Escape" palette -- reverted 2026-09-19 back to this exact picture
+// after a brief "Honey Jar" round, per Terrence's request. Keep in sync with
+// the :root custom properties in src/app/globals.css. This page is a plain
 // hardcoded reference (not read from the CSS variables), so it has to be
-// updated by hand whenever the palette changes. Role names (Sunset Peach,
-// Palm Leaf, etc.) carry over from the previous round since this round's
-// picture only supplied hex codes, not new names -- only the hex values
-// changed. Sand Dune is untouched this round (see globals.css comment).
+// updated by hand whenever the palette changes.
 const palette = [
   { group: "Sand Dune", swatches: [
     { name: "Sand Dune Light", hex: "#faf7f4" },
     { name: "Sand Dune", hex: "#f4eee8" },
   ]},
   { group: "Sunset Peach", swatches: [
-    { name: "Sunset Peach Light", hex: "#f6e8d8" },
-    { name: "Sunset Peach", hex: "#ebceae" },
-    { name: "Sunset Peach Dark", hex: "#dda567" },
+    { name: "Sunset Peach Light", hex: "#f5d4c0" },
+    { name: "Sunset Peach", hex: "#e9a67c" },
+    { name: "Sunset Peach Dark", hex: "#e37a39" },
   ]},
   { group: "Palm Leaf", swatches: [
-    { name: "Palm Leaf Light", hex: "#d6d0ae" },
-    { name: "Palm Leaf", hex: "#aaa06d" },
-    { name: "Palm Leaf Dark", hex: "#847c4e" },
+    { name: "Palm Leaf Light", hex: "#c3d4c0" },
+    { name: "Palm Leaf", hex: "#8fa98b" },
+    { name: "Palm Leaf Dark", hex: "#688564" },
   ]},
   { group: "Sea Breeze", swatches: [
-    { name: "Sea Breeze", hex: "#e0af70" },
-    { name: "Sea Breeze Dark", hex: "#a67b44" },
+    { name: "Sea Breeze", hex: "#a9c6c2" },
+    { name: "Sea Breeze Dark", hex: "#6f918c" },
   ]},
   { group: "Citrus Zest", swatches: [
-    { name: "Citrus Zest", hex: "#f5b74e" },
-    { name: "Citrus Zest Dark", hex: "#d89627" },
+    { name: "Citrus Zest", hex: "#e6c15a" },
+    { name: "Citrus Zest Dark", hex: "#c6a036" },
   ]},
   { group: "Ocean Depth (text)", swatches: [
-    { name: "Ocean Depth Light", hex: "#929b92" },
-    { name: "Ocean Depth Mid", hex: "#778477" },
-    { name: "Ocean Depth", hex: "#5d695d" },
+    { name: "Ocean Depth Light", hex: "#7197a0" },
+    { name: "Ocean Depth Mid", hex: "#527c86" },
+    { name: "Ocean Depth", hex: "#395b63" },
   ]},
 ];
 

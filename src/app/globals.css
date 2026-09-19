@@ -1,42 +1,36 @@
 @import "tailwindcss";
 
 :root {
-  /* "Honey Jar" palette (2026-09-19 rebrand, round 2) — replaces every
-     accent/text color from the "Summer Escape" round with the new picture's
-     5 exact hex codes. Light/dark tiers are computed from each anchor color
-     using the same proportional lighten/darken relationships used every
-     round so far, not picked by eye. The background family (cream/
-     cream-soft) is the one exception, left as-is from the previous round --
-     the new picture has no swatch that reads as a neutral background, and
-     the closest candidate (Sunset Peach's own new color) is already spoken
-     for as the primary accent. */
+  /* "Summer Escape" palette -- reverted 2026-09-19 back to this exact
+     picture after a brief "Honey Jar" round, per Terrence's request. Light/
+     dark tiers are computed from each anchor color using the same
+     proportional lighten/darken relationships used every round, not picked
+     by eye. */
   --color-cream: #faf7f4;
   --color-cream-soft: #f4eee8;
 
-  /* Sunset Peach — primary accent (CTAs, links, active states). Exact hex
-     per Terrence's explicit request; -dark below is what most on-screen
-     text actually renders in, since the base tone is very pale. */
-  --color-terracotta: #ebceae;
-  --color-terracotta-dark: #dda567;
-  --color-terracotta-light: #f6e8d8;
+  /* Sunset Peach — primary accent (CTAs, links, active states) */
+  --color-terracotta: #e9a67c;
+  --color-terracotta-dark: #e37a39;
+  --color-terracotta-light: #f5d4c0;
 
   /* Palm Leaf — secondary accent */
-  --color-sage: #aaa06d;
-  --color-sage-dark: #847c4e;
-  --color-sage-light: #d6d0ae;
+  --color-sage: #8fa98b;
+  --color-sage-dark: #688564;
+  --color-sage-light: #c3d4c0;
 
   /* Sea Breeze — third accent */
-  --color-lavender: #e0af70;
-  --color-lavender-dark: #a67b44;
+  --color-lavender: #a9c6c2;
+  --color-lavender-dark: #6f918c;
 
   /* Citrus Zest — fourth accent (Roles card color option) */
-  --color-citrus: #f5b74e;
-  --color-citrus-dark: #d89627;
+  --color-citrus: #e6c15a;
+  --color-citrus-dark: #c6a036;
 
   /* Ocean Depth — text neutrals */
-  --color-clay-900: #5d695d;
-  --color-clay-700: #778477;
-  --color-clay-500: #929b92;
+  --color-clay-900: #395b63;
+  --color-clay-700: #527c86;
+  --color-clay-500: #7197a0;
   --color-white: #ffffff;
 }
 
