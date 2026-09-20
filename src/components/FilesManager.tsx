@@ -36,6 +36,19 @@ function DownloadIcon() {
   );
 }
 
+// Which of the modal's built-in preview renderers a content_type gets --
+// anything else falls back to a "download to view" message, since a browser
+// can't render a .docx/.xlsx/.zip/etc. on its own.
+function previewKind(contentType: string | null) {
+  if (!contentType) return "unsupported";
+  if (contentType.startsWith("image/")) return "image";
+  if (contentType === "application/pdf") return "pdf";
+  if (contentType.startsWith("video/")) return "video";
+  if (contentType.startsWith("audio/")) return "audio";
+  if (contentType.startsWith("text/")) return "text";
+  return "unsupported";
+}
+
 function formatSize(bytes: number | null) {
   if (!bytes) return "—";
   if (bytes < 1024) return `${bytes} B`;
@@ -68,6 +81,10 @@ export function FilesManager({
   const [newFolderName, setNewFolderName] = useState("");
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewFile, setPreviewFile] = useState<FileRow | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
 
   const breadcrumb: FolderRow[] = [];
   let cursor = allFolders.find((f) => f.id === currentFolderId) ?? null;
@@ -120,6 +137,31 @@ export function FilesManager({
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "Download failed.");
     }
+  }
+
+  async function openPreview(file: FileRow) {
+    setPreviewFile(file);
+    setPreviewUrl(null);
+    setPreviewError(null);
+    setPreviewLoading(true);
+    try {
+      // No `download` option this time (unlike handleDownload) -- that's
+      // what makes the browser render the file inline instead of forcing
+      // a Save dialog.
+      const { data, error } = await supabase.storage.from("documents").createSignedUrl(file.path, 300);
+      if (error) throw error;
+      setPreviewUrl(data.signedUrl);
+    } catch (err) {
+      setPreviewError(err instanceof Error ? err.message : "Couldn't load preview.");
+    } finally {
+      setPreviewLoading(false);
+    }
+  }
+
+  function closePreview() {
+    setPreviewFile(null);
+    setPreviewUrl(null);
+    setPreviewError(null);
   }
 
   async function handleCreateFolder(e: React.FormEvent) {
@@ -297,10 +339,14 @@ export function FilesManager({
             {files.map((file) => (
               <tr key={file.id}>
                 <td className="px-5 py-3">
-                  <span className="flex items-center gap-2.5 font-medium text-clay-900">
+                  <button
+                    type="button"
+                    onClick={() => openPreview(file)}
+                    className="flex items-center gap-2.5 font-medium text-clay-900 hover:underline"
+                  >
                     <FileIcon />
                     {file.name}
-                  </span>
+                  </button>
                 </td>
                 <td className="px-5 py-3 text-clay-700">{formatSize(file.size_bytes)}</td>
                 <td className="px-5 py-3 text-right">
@@ -351,6 +397,87 @@ export function FilesManager({
           </tbody>
         </table>
       </div>
+
+      {previewFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-clay-900/40 p-4">
+          <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between gap-4 border-b border-clay-900/8 px-6 py-4">
+              <h2 className="truncate font-display text-lg text-clay-900">{previewFile.name}</h2>
+              <div className="flex shrink-0 items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => handleDownload(previewFile)}
+                  className="inline-flex items-center gap-1 text-sm font-medium text-clay-700 hover:text-clay-900"
+                >
+                  <DownloadIcon />
+                  Download
+                </button>
+                <button
+                  type="button"
+                  onClick={closePreview}
+                  aria-label="Close"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg text-clay-500 transition-colors hover:bg-clay-900/5"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto bg-cream-soft p-4">
+              {previewLoading && <p className="py-10 text-center text-sm text-clay-500">Loading preview…</p>}
+              {previewError && (
+                <p className="rounded-xl bg-terracotta-light/30 p-4 text-sm text-clay-900">{previewError}</p>
+              )}
+              {previewUrl && !previewLoading && !previewError && (
+                <PreviewBody file={previewFile} url={previewUrl} onDownload={() => handleDownload(previewFile)} />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+}
+
+function PreviewBody({
+  file,
+  url,
+  onDownload,
+}: {
+  file: FileRow;
+  url: string;
+  onDownload: () => void;
+}) {
+  switch (previewKind(file.content_type)) {
+    case "image":
+      // A signed, short-lived Storage URL isn't a candidate for next/image optimization.
+      // eslint-disable-next-line @next/next/no-img-element
+      return <img src={url} alt={file.name} className="mx-auto max-h-[70vh] w-auto rounded-lg" />;
+    case "pdf":
+      return (
+        <iframe src={url} title={file.name} className="h-[75vh] w-full rounded-lg border border-clay-900/10 bg-white" />
+      );
+    case "video":
+      return <video src={url} controls className="mx-auto max-h-[70vh] w-full rounded-lg" />;
+    case "audio":
+      return <audio src={url} controls className="w-full" />;
+    case "text":
+      return (
+        <iframe src={url} title={file.name} className="h-[70vh] w-full rounded-lg border border-clay-900/10 bg-white" />
+      );
+    default:
+      return (
+        <div className="flex flex-col items-center gap-3 py-10 text-center text-clay-500">
+          <p>Preview isn&rsquo;t available for this file type.</p>
+          <button
+            type="button"
+            onClick={onDownload}
+            className="inline-flex items-center gap-1.5 rounded-full bg-sage px-5 py-2 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
+          >
+            <DownloadIcon />
+            Download instead
+          </button>
+        </div>
+      );
+  }
 }
