@@ -85,11 +85,11 @@ function AssetCard({ asset, title }: { asset: BrandAssetRow; title: string }) {
   );
 }
 
-// The full set of colors the wordmark currently ships in, in display order.
-// swatch is what renders on the toggle -- a literal hex for real colors,
-// or a distinct treatment for black/white so they don't disappear against
-// the card background.
-const LOGO_FAMILIES: { key: string; label: string; swatch: string }[] = [
+// The full set of colors both the wordmark and the S-mark ship in, in
+// display order. swatch is what renders on the toggle -- a literal hex for
+// real colors, or a distinct treatment for black/white so they don't
+// disappear against the card background.
+const COLOR_FAMILIES: { key: string; label: string; swatch: string }[] = [
   { key: "black", label: "Black", swatch: "#000000" },
   { key: "white", label: "White", swatch: "#ffffff" },
   { key: "sand-dune", label: "Sand Dune", swatch: "#f4eee8" },
@@ -100,7 +100,7 @@ const LOGO_FAMILIES: { key: string; label: string; swatch: string }[] = [
   { key: "ocean-depth", label: "Ocean Depth", swatch: "#395b63" },
 ];
 
-function LogoFamilyToggle({
+function FamilyToggle({
   familyKey,
   label,
   swatch,
@@ -122,7 +122,7 @@ function LogoFamilyToggle({
         onClick={() => setOpen((o) => !o)}
         className="flex w-full items-center justify-between gap-3 bg-white px-4 py-3 text-left transition-colors hover:bg-cream-soft"
         aria-expanded={open}
-        aria-controls={`logo-family-${familyKey}`}
+        aria-controls={`family-${familyKey}`}
       >
         <span className="flex items-center gap-3">
           <span
@@ -137,7 +137,7 @@ function LogoFamilyToggle({
         <ChevronIcon open={open} />
       </button>
       {open && (
-        <div id={`logo-family-${familyKey}`} className="grid grid-cols-2 gap-3 bg-cream-soft p-3 sm:grid-cols-3 md:grid-cols-4">
+        <div id={`family-${familyKey}`} className="grid grid-cols-2 gap-3 bg-cream-soft p-3 sm:grid-cols-3 md:grid-cols-4">
           {assets.map((asset) => (
             <AssetCard key={asset.id} asset={asset} title={label} />
           ))}
@@ -147,11 +147,17 @@ function LogoFamilyToggle({
   );
 }
 
-function LogosSection({
+function FamilyAccordionSection({
+  title,
+  hint,
+  otherLabel,
   assets,
   busy,
   onUpload,
 }: {
+  title: string;
+  hint: string;
+  otherLabel: string;
   assets: BrandAssetRow[];
   busy: boolean;
   onUpload: (files: FileList | null) => void;
@@ -161,7 +167,7 @@ function LogosSection({
   const byFamily = new Map<string, BrandAssetRow[]>();
   const other: BrandAssetRow[] = [];
   for (const asset of assets) {
-    if (asset.color_family && LOGO_FAMILIES.some((f) => f.key === asset.color_family)) {
+    if (asset.color_family && COLOR_FAMILIES.some((f) => f.key === asset.color_family)) {
       const list = byFamily.get(asset.color_family) ?? [];
       list.push(asset);
       byFamily.set(asset.color_family, list);
@@ -169,78 +175,6 @@ function LogosSection({
       other.push(asset);
     }
   }
-
-  return (
-    <section>
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="font-display text-lg text-clay-900">Logos</h2>
-          <p className="mt-1 text-sm text-clay-700">
-            Full lockups — grouped by color, each with every weight on hand. Click a color to see its variants.
-          </p>
-        </div>
-        <label className="inline-flex cursor-pointer items-center justify-center rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95">
-          {busy ? "Working…" : "Add"}
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*,.ico"
-            multiple
-            disabled={busy}
-            onChange={(e) => {
-              onUpload(e.target.files);
-              if (inputRef.current) inputRef.current.value = "";
-            }}
-            className="hidden"
-          />
-        </label>
-      </div>
-
-      <div className="mt-4 space-y-2">
-        {LOGO_FAMILIES.map((family) => {
-          const familyAssets = byFamily.get(family.key) ?? [];
-          if (familyAssets.length === 0) return null;
-          return (
-            <LogoFamilyToggle
-              key={family.key}
-              familyKey={family.key}
-              label={family.label}
-              swatch={family.swatch}
-              assets={familyAssets}
-            />
-          );
-        })}
-        {other.length > 0 && (
-          <LogoFamilyToggle
-            familyKey="other"
-            label="Other"
-            swatch="#faf7f4"
-            assets={other}
-            defaultOpen
-          />
-        )}
-        {assets.length === 0 && (
-          <p className="py-6 text-center text-sm text-clay-500">Nothing here yet.</p>
-        )}
-      </div>
-    </section>
-  );
-}
-
-function AssetGroup({
-  title,
-  hint,
-  assets,
-  busy,
-  onUpload,
-}: {
-  title: string;
-  hint: string;
-  assets: BrandAssetRow[];
-  busy: boolean;
-  onUpload: (files: FileList | null) => void;
-}) {
-  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <section>
@@ -266,12 +200,31 @@ function AssetGroup({
         </label>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-        {assets.map((asset) => (
-          <AssetCard key={asset.id} asset={asset} title={title} />
-        ))}
+      <div className="mt-4 space-y-2">
+        {COLOR_FAMILIES.map((family) => {
+          const familyAssets = byFamily.get(family.key) ?? [];
+          if (familyAssets.length === 0) return null;
+          return (
+            <FamilyToggle
+              key={family.key}
+              familyKey={family.key}
+              label={family.label}
+              swatch={family.swatch}
+              assets={familyAssets}
+            />
+          );
+        })}
+        {other.length > 0 && (
+          <FamilyToggle
+            familyKey="other"
+            label={otherLabel}
+            swatch="#faf7f4"
+            assets={other}
+            defaultOpen
+          />
+        )}
         {assets.length === 0 && (
-          <p className="col-span-full py-6 text-center text-sm text-clay-500">Nothing here yet.</p>
+          <p className="py-6 text-center text-sm text-clay-500">Nothing here yet.</p>
         )}
       </div>
     </section>
@@ -343,11 +296,19 @@ export function BrandAssetsManager({
         </p>
       )}
 
-      <LogosSection assets={logos} busy={busy} onUpload={(files) => handleUpload("logo", files)} />
+      <FamilyAccordionSection
+        title="Logos"
+        hint="Full lockups — grouped by color, each with every weight on hand. Click a color to see its variants."
+        otherLabel="Other"
+        assets={logos}
+        busy={busy}
+        onUpload={(files) => handleUpload("logo", files)}
+      />
 
-      <AssetGroup
+      <FamilyAccordionSection
         title="Icons & Favicons"
-        hint="Standalone marks used for the favicon, app icon, and social previews."
+        hint="The S mark — grouped by color, each with every weight on hand. Site favicons and app icons live under Other."
+        otherLabel="Favicons & App Icons"
         assets={icons}
         busy={busy}
         onUpload={(files) => handleUpload("icon", files)}
