@@ -45,6 +45,8 @@ export type BrandAssetRow = {
   category: "logo" | "icon";
   label: string | null;
   url: string;
+  color_family: string | null;
+  weight: string;
   sort_order: number;
   created_at: string;
 };
