@@ -215,12 +215,12 @@ export function LeftNav({
           className="flex items-center gap-2.5 border-b border-clay-900/8 px-5 py-5"
         >
           <Image
-            src="https://www.shineministriesok.com/brand/shine-logo.png"
+            src="https://www.shineministriesok.com/brand/shine-logo-sea-breeze-dark.png"
             alt="Shine Ministries"
             width={1000}
             height={517}
             priority
-            className="h-10 w-auto"
+            className="h-12 w-auto"
           />
           <span className="h-4 w-px bg-clay-900/15" />
           <span className="text-xs font-semibold uppercase tracking-[0.2em] text-clay-500">
@@ -237,12 +237,12 @@ export function LeftNav({
       <div className="fixed inset-x-0 top-0 z-30 flex h-14 items-center justify-between border-b border-clay-900/8 bg-white px-4 md:hidden">
         <Link href="/website/events" className="flex items-center">
           <Image
-            src="https://www.shineministriesok.com/brand/shine-logo.png"
+            src="https://www.shineministriesok.com/brand/shine-logo-sea-breeze-dark.png"
             alt="Shine Ministries"
             width={1000}
             height={517}
             priority
-            className="h-7 w-auto"
+            className="h-8 w-auto"
           />
         </Link>
         <button
