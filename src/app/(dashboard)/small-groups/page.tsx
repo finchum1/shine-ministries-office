@@ -1,22 +1,27 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
+import type { PersonRow, PersonSmallGroupRow, SmallGroupRow } from "@/lib/supabase-types";
 import { SmallGroupsBoard } from "@/components/SmallGroupsBoard";
 
 export default async function SmallGroupsPage() {
   const supabase = await createClient();
-  const [{ data: groupsData, error: groupsError }, { data: peopleData, error: peopleError }] =
-    await Promise.all([
-      supabase.from("small_groups").select("*").order("sort_order", { ascending: true }),
-      supabase
-        .from("people")
-        .select("id, full_name, email, phone, small_group_id, created_at")
-        .order("full_name", { ascending: true }),
-    ]);
+  const [
+    { data: groupsData, error: groupsError },
+    { data: peopleData, error: peopleError },
+    { data: membershipsData, error: membershipsError },
+  ] = await Promise.all([
+    supabase.from("small_groups").select("*").order("sort_order", { ascending: true }),
+    supabase
+      .from("people")
+      .select("id, full_name, email, phone, created_at")
+      .order("full_name", { ascending: true }),
+    supabase.from("person_small_groups").select("*"),
+  ]);
 
   const groups = (groupsData as SmallGroupRow[] | null) ?? [];
   const people = (peopleData as PersonRow[] | null) ?? [];
-  const error = groupsError ?? peopleError;
+  const memberships = (membershipsData as PersonSmallGroupRow[] | null) ?? [];
+  const error = groupsError ?? peopleError ?? membershipsError;
 
   return (
     <div>
@@ -43,7 +48,7 @@ export default async function SmallGroupsPage() {
         </p>
       )}
 
-      <SmallGroupsBoard initialGroups={groups} initialPeople={people} />
+      <SmallGroupsBoard initialGroups={groups} initialPeople={people} initialMemberships={memberships} />
     </div>
   );
 }

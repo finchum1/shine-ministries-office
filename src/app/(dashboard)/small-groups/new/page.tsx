@@ -7,13 +7,15 @@ const inputClass =
 
 export default async function NewSmallGroupPage() {
   const supabase = await createClient();
+  // Everyone, not just people with no group yet -- someone can belong to
+  // more than one small group, so being in another one already shouldn't
+  // hide them here.
   const { data } = await supabase
     .from("people")
     .select("id, full_name")
-    .is("small_group_id", null)
     .order("full_name", { ascending: true });
 
-  const unassigned = (data as Pick<PersonRow, "id" | "full_name">[] | null) ?? [];
+  const people = (data as Pick<PersonRow, "id" | "full_name">[] | null) ?? [];
 
   return (
     <div>
@@ -72,7 +74,7 @@ export default async function NewSmallGroupPage() {
             </span>
             <select name="leader_id" defaultValue="" className={inputClass}>
               <option value="">No leader yet</option>
-              {unassigned.map((person) => (
+              {people.map((person) => (
                 <option key={person.id} value={person.id}>
                   {person.full_name}
                 </option>
@@ -86,10 +88,11 @@ export default async function NewSmallGroupPage() {
 
           <div>
             <span className="mb-2 block text-sm font-medium text-clay-700">
-              Add members ({unassigned.length} not in a group)
+              Add members ({people.length} people -- can include anyone, even if they&rsquo;re
+              already in another group)
             </span>
             <div className="max-h-72 space-y-1 overflow-y-auto rounded-xl border border-clay-900/12 bg-cream p-3">
-              {unassigned.map((person) => (
+              {people.map((person) => (
                 <label
                   key={person.id}
                   className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-clay-700 hover:bg-clay-900/5"
@@ -103,9 +106,9 @@ export default async function NewSmallGroupPage() {
                   {person.full_name}
                 </label>
               ))}
-              {unassigned.length === 0 && (
+              {people.length === 0 && (
                 <p className="px-2 py-1.5 text-sm text-clay-500">
-                  No one is unassigned right now -- you can add members later.
+                  No people yet -- add some from the People page first.
                 </p>
               )}
             </div>

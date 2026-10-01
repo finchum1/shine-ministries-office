@@ -48,9 +48,8 @@ export async function createSmallGroup(formData: FormData) {
 
   if (allMemberIds.length > 0) {
     const { error: memberError } = await supabase
-      .from("people")
-      .update({ small_group_id: data.id })
-      .in("id", allMemberIds);
+      .from("person_small_groups")
+      .insert(allMemberIds.map((personId) => ({ person_id: personId, small_group_id: data.id })));
     if (memberError) throw new Error(memberError.message);
   }
 
@@ -85,14 +84,16 @@ export async function setLeader(id: string, formData: FormData) {
   if (error) throw new Error(error.message);
 
   // The leader is a member too -- picking someone who isn't in the group yet
-  // (e.g. from "Not in a Group") adds them, same as at group creation, so
-  // you don't have to add a member first just to make them the leader.
+  // (even if they're in other groups) adds them, same as at group creation,
+  // so you don't have to add a member first just to make them the leader.
+  // upsert + ignoreDuplicates makes this a no-op if they're already a member.
   if (leaderId) {
     const { error: memberError } = await supabase
-      .from("people")
-      .update({ small_group_id: id })
-      .eq("id", leaderId)
-      .is("small_group_id", null);
+      .from("person_small_groups")
+      .upsert(
+        { person_id: leaderId, small_group_id: id },
+        { onConflict: "person_id,small_group_id", ignoreDuplicates: true }
+      );
     if (memberError) throw new Error(memberError.message);
   }
 
@@ -107,9 +108,11 @@ export async function addMembers(id: string, formData: FormData) {
 
   const supabase = await createClient();
   const { error } = await supabase
-    .from("people")
-    .update({ small_group_id: id })
-    .in("id", memberIds);
+    .from("person_small_groups")
+    .upsert(
+      memberIds.map((personId) => ({ person_id: personId, small_group_id: id })),
+      { onConflict: "person_id,small_group_id", ignoreDuplicates: true }
+    );
   if (error) throw new Error(error.message);
 
   revalidatePath("/small-groups");
@@ -121,9 +124,9 @@ export async function removeMember(groupId: string, personId: string) {
   const supabase = await createClient();
 
   const { error } = await supabase
-    .from("people")
-    .update({ small_group_id: null })
-    .eq("id", personId)
+    .from("person_small_groups")
+    .delete()
+    .eq("person_id", personId)
     .eq("small_group_id", groupId);
   if (error) throw new Error(error.message);
 
@@ -143,8 +146,8 @@ export async function removeMember(groupId: string, personId: string) {
 
 export async function deleteSmallGroup(id: string) {
   const supabase = await createClient();
-  // People in this group return to "Not in a Group" automatically (the
-  // small_group_id foreign key is ON DELETE SET NULL).
+  // People in this group keep their other memberships and just lose this
+  // one (person_small_groups rows for this group cascade-delete with it).
   const { error } = await supabase.from("small_groups").delete().eq("id", id);
   if (error) throw new Error(error.message);
 

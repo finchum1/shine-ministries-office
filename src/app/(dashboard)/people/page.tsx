@@ -3,36 +3,34 @@ import { createClient } from "@/lib/supabase/server";
 import { PeopleDirectory } from "@/components/PeopleDirectory";
 import { deletePerson } from "./actions";
 
-type PersonWithGroup = {
+type PersonWithGroups = {
   id: string;
   full_name: string;
   email: string | null;
   phone: string | null;
-  small_groups: { name: string } | { name: string }[] | null;
+  person_small_groups: { small_groups: { name: string } | null }[] | null;
 };
 
-function groupName(person: PersonWithGroup) {
-  const group = Array.isArray(person.small_groups) ? person.small_groups[0] : person.small_groups;
-  return group?.name ?? null;
+function groupNames(person: PersonWithGroups) {
+  return (person.person_small_groups ?? [])
+    .map((row) => row.small_groups?.name)
+    .filter((name): name is string => Boolean(name))
+    .sort((a, b) => a.localeCompare(b));
 }
 
 export default async function PeoplePage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("people")
-    // Two foreign keys connect people <-> small_groups (this one, plus
-    // small_groups.leader_id -> people the other way), so PostgREST can't
-    // infer which relationship to embed without an explicit hint -- without
-    // it, this query fails outright with an "ambiguous relationship" error.
-    .select("id, full_name, email, phone, small_groups!people_small_group_id_fkey(name)")
+    .select("id, full_name, email, phone, person_small_groups(small_groups(name))")
     .order("full_name", { ascending: true });
 
-  const people = ((data as PersonWithGroup[] | null) ?? []).map((person) => ({
+  const people = ((data as PersonWithGroups[] | null) ?? []).map((person) => ({
     id: person.id,
     full_name: person.full_name,
     email: person.email,
     phone: person.phone,
-    group: groupName(person),
+    groups: groupNames(person),
   }));
 
   return (

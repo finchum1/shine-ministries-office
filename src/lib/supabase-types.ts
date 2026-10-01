@@ -83,7 +83,6 @@ export type PersonRow = {
   full_name: string;
   email: string | null;
   phone: string | null;
-  small_group_id: string | null;
   created_at: string;
 };
 
@@ -97,6 +96,14 @@ export type SmallGroupRow = {
   frequency: string | null;
   notes: string | null;
   sort_order: number;
+  created_at: string;
+};
+
+// A person can belong to any number of small groups -- this join table is
+// the many-to-many link between people and small_groups.
+export type PersonSmallGroupRow = {
+  person_id: string;
+  small_group_id: string;
   created_at: string;
 };
 

@@ -5,11 +5,19 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { createClient } from "@/lib/supabase/client";
-import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
+import type { PersonRow, PersonSmallGroupRow, SmallGroupRow } from "@/lib/supabase-types";
 import { SunMark } from "@/components/icons/SunMark";
 import { REORDER_SWAP_COOLDOWN_MS, REORDER_TRANSITION } from "@/lib/reorder-transition";
 
-type Dragging = { kind: "person"; id: string } | { kind: "group"; id: string } | null;
+// A person can be in several groups at once, so a drag needs to know which
+// specific membership is being dragged (fromGroupId), not just who -- that's
+// what lets dropping someone from Group A onto Group B move just that one
+// relationship, leaving any other groups they're in untouched. fromGroupId
+// is null for a drag that starts from "Not in a Group" (nothing to remove).
+type Dragging =
+  | { kind: "person"; personId: string; fromGroupId: string | null }
+  | { kind: "group"; id: string }
+  | null;
 
 const UNASSIGNED = "__unassigned__";
 const DROP_ATTR = "data-drop-id";
@@ -76,14 +84,17 @@ function GroupGrip({ onPointerDown }: { onPointerDown: (e: React.PointerEvent) =
 export function SmallGroupsBoard({
   initialGroups,
   initialPeople,
+  initialMemberships,
 }: {
   initialGroups: SmallGroupRow[];
   initialPeople: PersonRow[];
+  initialMemberships: PersonSmallGroupRow[];
 }) {
   const router = useRouter();
   const supabase = createClient();
   const [groups, setGroups] = useState(initialGroups);
-  const [people, setPeople] = useState(initialPeople);
+  const [people] = useState(initialPeople);
+  const [memberships, setMemberships] = useState(initialMemberships);
   const [dragging, setDragging] = useState<Dragging>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const dragOverIdRef = useRef<string | null>(null);
@@ -91,7 +102,8 @@ export function SmallGroupsBoard({
   const lastReorderAtRef = useRef(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const unassigned = people.filter((p) => !p.small_group_id);
+  const memberGroupIds = new Set(memberships.map((m) => m.person_id));
+  const unassigned = people.filter((p) => !memberGroupIds.has(p.id));
 
   function updateGroups(next: SmallGroupRow[]) {
     groupsRef.current = next;
@@ -108,34 +120,58 @@ export function SmallGroupsBoard({
     setDragOver(null);
   }
 
-  async function movePerson(personId: string, targetGroupId: string | null) {
-    const person = people.find((p) => p.id === personId);
-    if (!person || person.small_group_id === targetGroupId) return;
+  // Moves one specific membership: fromGroupId === null means the person
+  // came from "Not in a Group" (nothing to delete, just insert); a null
+  // targetGroupId means they were dropped on "Not in a Group" (just delete).
+  // Dropping on the same group they were already in is a no-op.
+  async function movePerson(
+    personId: string,
+    fromGroupId: string | null,
+    targetGroupId: string | null
+  ) {
+    if (fromGroupId === targetGroupId) return;
 
-    setPeople((prev) =>
-      prev.map((p) => (p.id === personId ? { ...p, small_group_id: targetGroupId } : p))
-    );
+    setMemberships((prev) => {
+      const withoutOld = fromGroupId
+        ? prev.filter((m) => !(m.person_id === personId && m.small_group_id === fromGroupId))
+        : prev;
+      if (!targetGroupId) return withoutOld;
+      return [
+        ...withoutOld,
+        { person_id: personId, small_group_id: targetGroupId, created_at: new Date().toISOString() },
+      ];
+    });
     // A person who's moved off a group loses "leader" there if they held it.
-    if (!targetGroupId) {
+    if (fromGroupId && fromGroupId !== targetGroupId) {
       updateGroups(
-        groupsRef.current.map((g) => (g.leader_id === personId ? { ...g, leader_id: null } : g))
+        groupsRef.current.map((g) =>
+          g.id === fromGroupId && g.leader_id === personId ? { ...g, leader_id: null } : g
+        )
       );
     }
 
     setErrorMessage(null);
     try {
-      const { error } = await supabase
-        .from("people")
-        .update({ small_group_id: targetGroupId })
-        .eq("id", personId);
-      if (error) throw error;
+      if (fromGroupId) {
+        const { error } = await supabase
+          .from("person_small_groups")
+          .delete()
+          .eq("person_id", personId)
+          .eq("small_group_id", fromGroupId);
+        if (error) throw error;
 
-      if (!targetGroupId) {
         const { error: leaderError } = await supabase
           .from("small_groups")
           .update({ leader_id: null })
+          .eq("id", fromGroupId)
           .eq("leader_id", personId);
         if (leaderError) throw leaderError;
+      }
+      if (targetGroupId) {
+        const { error } = await supabase
+          .from("person_small_groups")
+          .insert({ person_id: personId, small_group_id: targetGroupId });
+        if (error) throw error;
       }
       router.refresh();
     } catch (err) {
@@ -216,7 +252,11 @@ export function SmallGroupsBoard({
 
     function handleUp() {
       if (dragging?.kind === "person") {
-        movePerson(dragging.id, dragOverIdRef.current === UNASSIGNED ? null : dragOverIdRef.current);
+        movePerson(
+          dragging.personId,
+          dragging.fromGroupId,
+          dragOverIdRef.current === UNASSIGNED ? null : dragOverIdRef.current
+        );
       } else if (dragging?.kind === "group") {
         persistGroupOrder();
       }
@@ -267,18 +307,25 @@ export function SmallGroupsBoard({
           <ul className="mt-2 min-h-0 flex-1 space-y-1 overflow-y-auto text-sm text-clay-700">
             {unassigned.map((person) => (
               <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
-                <PersonGrip onPointerDown={(e) => startDrag(e, { kind: "person", id: person.id })} />
+                <PersonGrip
+                  onPointerDown={(e) =>
+                    startDrag(e, { kind: "person", personId: person.id, fromGroupId: null })
+                  }
+                />
                 <span className="truncate">{person.full_name}</span>
               </li>
             ))}
             {unassigned.length === 0 && (
-              <li className="text-clay-500">Everyone has a small group.</li>
+              <li className="text-clay-500">Everyone is in at least one small group.</li>
             )}
           </ul>
         </div>
 
         {groups.map((group) => {
-          const members = people.filter((p) => p.small_group_id === group.id);
+          const memberIds = new Set(
+            memberships.filter((m) => m.small_group_id === group.id).map((m) => m.person_id)
+          );
+          const members = people.filter((p) => memberIds.has(p.id));
           const leader = members.find((p) => p.id === group.leader_id);
           const meta = [group.frequency, group.location].filter(Boolean).join(" · ");
 
@@ -309,7 +356,13 @@ export function SmallGroupsBoard({
                 {members.map((person) => (
                   <li key={person.id} className="flex items-center gap-1.5 rounded px-1 py-0.5">
                     <PersonGrip
-                      onPointerDown={(e) => startDrag(e, { kind: "person", id: person.id })}
+                      onPointerDown={(e) =>
+                        startDrag(e, {
+                          kind: "person",
+                          personId: person.id,
+                          fromGroupId: group.id,
+                        })
+                      }
                     />
                     <span className="truncate">{person.full_name}</span>
                   </li>

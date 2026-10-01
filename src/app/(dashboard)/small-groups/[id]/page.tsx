@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import type { PersonRow, SmallGroupRow } from "@/lib/supabase-types";
+import type { PersonRow, PersonSmallGroupRow, SmallGroupRow } from "@/lib/supabase-types";
 import { DeleteSmallGroupButton } from "@/components/DeleteSmallGroupButton";
 import { updateSmallGroupDetails, setLeader, addMembers, removeMember, deleteSmallGroup } from "../actions";
 
@@ -16,20 +16,28 @@ export default async function ManageSmallGroupPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: groupData }, { data: peopleData }] = await Promise.all([
+  const [{ data: groupData }, { data: peopleData }, { data: membershipsData }] = await Promise.all([
     supabase.from("small_groups").select("*").eq("id", id).maybeSingle(),
     supabase
       .from("people")
-      .select("id, full_name, email, phone, small_group_id, created_at")
+      .select("id, full_name, email, phone, created_at")
       .order("full_name", { ascending: true }),
+    supabase.from("person_small_groups").select("person_id").eq("small_group_id", id),
   ]);
 
   if (!groupData) notFound();
 
   const group = groupData as SmallGroupRow;
   const people = (peopleData as PersonRow[] | null) ?? [];
-  const members = people.filter((p) => p.small_group_id === group.id);
-  const unassigned = people.filter((p) => !p.small_group_id);
+  const memberIds = new Set(
+    ((membershipsData as Pick<PersonSmallGroupRow, "person_id">[] | null) ?? []).map(
+      (m) => m.person_id
+    )
+  );
+  const members = people.filter((p) => memberIds.has(p.id));
+  // Everyone who isn't already in THIS group -- including people who belong
+  // to other groups, since joining one group no longer precludes another.
+  const notInThisGroup = people.filter((p) => !memberIds.has(p.id));
 
   return (
     <div>
@@ -124,9 +132,9 @@ export default async function ManageSmallGroupPage({
                   ))}
                 </optgroup>
               )}
-              {unassigned.length > 0 && (
-                <optgroup label="Not in a group yet">
-                  {unassigned.map((person) => (
+              {notInThisGroup.length > 0 && (
+                <optgroup label="Not yet in this group">
+                  {notInThisGroup.map((person) => (
                     <option key={person.id} value={person.id}>
                       {person.full_name}
                     </option>
@@ -142,7 +150,7 @@ export default async function ManageSmallGroupPage({
             </button>
           </form>
           <p className="mt-2 text-xs text-clay-500">
-            Picking someone from &ldquo;Not in a group yet&rdquo; adds them to this group too.
+            Picking someone from &ldquo;Not yet in this group&rdquo; adds them to this group too.
           </p>
         </div>
 
@@ -178,11 +186,15 @@ export default async function ManageSmallGroupPage({
 
       <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5">
         <h2 className="font-display text-lg text-clay-900">
-          Add members ({unassigned.length} not in a group)
+          Add members ({notInThisGroup.length} not in this group)
         </h2>
+        <p className="mt-1 text-sm text-clay-700">
+          Includes people already in another group -- joining this one doesn&rsquo;t remove them
+          from it.
+        </p>
         <form action={addMembers.bind(null, group.id)} className="mt-4">
           <div className="max-h-72 space-y-1 overflow-y-auto rounded-xl border border-clay-900/12 bg-cream p-3">
-            {unassigned.map((person) => (
+            {notInThisGroup.map((person) => (
               <label
                 key={person.id}
                 className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 text-sm text-clay-700 hover:bg-clay-900/5"
@@ -196,13 +208,11 @@ export default async function ManageSmallGroupPage({
                 {person.full_name}
               </label>
             ))}
-            {unassigned.length === 0 && (
-              <p className="px-2 py-1.5 text-sm text-clay-500">
-                Everyone is already placed in a group.
-              </p>
+            {notInThisGroup.length === 0 && (
+              <p className="px-2 py-1.5 text-sm text-clay-500">Everyone is already in this group.</p>
             )}
           </div>
-          {unassigned.length > 0 && (
+          {notInThisGroup.length > 0 && (
             <button
               type="submit"
               className="mt-4 inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"

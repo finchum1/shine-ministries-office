@@ -8,17 +8,27 @@ export type PersonWithGroupName = {
   full_name: string;
   email: string | null;
   phone: string | null;
-  group: string | null;
+  groups: string[];
 };
 
-function GroupBadge({ group }: { group: string | null }) {
-  return group ? (
-    <span className="rounded-full bg-sage/15 px-2.5 py-1 text-xs font-medium text-clay-900">
-      {group}
-    </span>
-  ) : (
-    <span className="rounded-full bg-clay-900/8 px-2.5 py-1 text-xs font-medium text-clay-500">
-      Not in a Group
+function GroupBadges({ groups }: { groups: string[] }) {
+  if (groups.length === 0) {
+    return (
+      <span className="rounded-full bg-clay-900/8 px-2.5 py-1 text-xs font-medium text-clay-500">
+        Not in a Group
+      </span>
+    );
+  }
+  return (
+    <span className="flex flex-wrap gap-1">
+      {groups.map((group) => (
+        <span
+          key={group}
+          className="rounded-full bg-sage/15 px-2.5 py-1 text-xs font-medium text-clay-900"
+        >
+          {group}
+        </span>
+      ))}
     </span>
   );
 }
@@ -42,11 +52,14 @@ export function PeopleDirectory({
     }
     // Unassigned people sort to the end regardless of direction -- the point
     // of this sort is clustering group-mates together, not burying them.
+    // Someone in multiple groups sorts by the first (alphabetically) one.
     return [...people].sort((a, b) => {
-      if (!a.group && !b.group) return a.full_name.localeCompare(b.full_name);
-      if (!a.group) return 1;
-      if (!b.group) return -1;
-      const byGroup = a.group.localeCompare(b.group) * dir;
+      const aGroup = a.groups[0] ?? null;
+      const bGroup = b.groups[0] ?? null;
+      if (!aGroup && !bGroup) return a.full_name.localeCompare(b.full_name);
+      if (!aGroup) return 1;
+      if (!bGroup) return -1;
+      const byGroup = aGroup.localeCompare(bGroup) * dir;
       return byGroup !== 0 ? byGroup : a.full_name.localeCompare(b.full_name);
     });
   }, [people, sortMode, desc]);
@@ -103,7 +116,7 @@ export function PeopleDirectory({
                 <td className="px-5 py-3 text-clay-700">{person.email ?? "—"}</td>
                 <td className="px-5 py-3 text-clay-700">{person.phone ?? "—"}</td>
                 <td className="px-5 py-3">
-                  <GroupBadge group={person.group} />
+                  <GroupBadges groups={person.groups} />
                 </td>
                 <td className="px-5 py-3 text-right">
                   <EditDeleteActions
@@ -151,7 +164,7 @@ export function PeopleDirectory({
             <li key={person.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="font-medium text-clay-900">{person.full_name}</p>
-                <GroupBadge group={person.group} />
+                <GroupBadges groups={person.groups} />
               </div>
               {(person.email || person.phone) && (
                 <p className="mt-1 text-sm text-clay-700">
