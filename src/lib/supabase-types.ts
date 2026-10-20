@@ -107,11 +107,12 @@ export type PersonSmallGroupRow = {
   created_at: string;
 };
 
-// One row per person who attended an event (a Shine Gathering, social, etc.).
+// How many people came to an event (a Shine Gathering, social, etc.) -- one
+// headcount per event, no names. No row means it hasn't been recorded.
 export type EventAttendanceRow = {
   event_id: string;
-  person_id: string;
-  created_at: string;
+  headcount: number;
+  updated_at: string;
 };
 
 export type LeadershipRoleRow = {
