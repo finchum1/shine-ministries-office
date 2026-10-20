@@ -107,6 +107,13 @@ export type PersonSmallGroupRow = {
   created_at: string;
 };
 
+// One row per person who attended an event (a Shine Gathering, social, etc.).
+export type EventAttendanceRow = {
+  event_id: string;
+  person_id: string;
+  created_at: string;
+};
+
 export type LeadershipRoleRow = {
   id: string;
   title: string;

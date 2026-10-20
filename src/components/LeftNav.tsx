@@ -29,6 +29,7 @@ const sections: NavSectionConfig[] = [
       { href: "/roles", label: "Roles" },
       { href: "/small-groups", label: "Small Groups" },
       { href: "/people", label: "People Directory" },
+      { href: "/attendance", label: "Attendance" },
     ],
   },
   {
