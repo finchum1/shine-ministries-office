@@ -75,6 +75,8 @@ async function readOrderFields(formData: FormData) {
     payment_method: paid ? String(formData.get("payment_method") ?? "").trim() || null : null,
     picked_up: formData.get("picked_up") === "on",
     notes: String(formData.get("notes") ?? "").trim() || null,
+    buyer_email: String(formData.get("buyer_email") ?? "").trim() || null,
+    buyer_phone: String(formData.get("buyer_phone") ?? "").trim() || null,
   };
 }
 
@@ -148,6 +150,7 @@ export async function createItem(formData: FormData) {
     name,
     price,
     payment_url: parsePaymentUrl(String(formData.get("payment_url") ?? "")),
+    orders_open: formData.get("orders_open") === "on",
     sort_order: (last?.sort_order ?? -1) + 1,
   });
   if (error) throw new Error(error.message);
@@ -170,6 +173,7 @@ export async function updateItem(id: string, formData: FormData) {
       name,
       price,
       payment_url: parsePaymentUrl(String(formData.get("payment_url") ?? "")),
+      orders_open: formData.get("orders_open") === "on",
     })
     .eq("id", id);
   if (error) throw new Error(error.message);

@@ -8,6 +8,9 @@ import { createItem, updateItem, deleteItem } from "../actions";
 const inputClass =
   "w-full rounded-xl border border-clay-900/12 bg-cream px-4 py-3 text-sm text-clay-900 outline-none transition-shadow placeholder:text-clay-500 focus:border-terracotta focus:ring-2 focus:ring-terracotta/30";
 
+// Public page where people place an order and are sent on to pay.
+const ORDER_PAGE_URL = "https://merch.shineministriesok.com";
+
 const saveButtonClass =
   "shrink-0 rounded-full bg-sage px-5 py-2.5 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95";
 
@@ -77,6 +80,14 @@ export default async function MerchItemsPage() {
             aria-label="Payment link"
             className={`${inputClass} basis-full`}
           />
+          <label className="flex basis-full items-center gap-2.5 text-sm font-medium text-clay-700">
+            <input
+              type="checkbox"
+              name="orders_open"
+              className="h-5 w-5 rounded border-clay-900/30 text-sage focus:ring-sage"
+            />
+            Open for online orders
+          </label>
           <button type="submit" className={saveButtonClass}>
             Add item
           </button>
@@ -111,13 +122,27 @@ export default async function MerchItemsPage() {
                   aria-label="Payment link"
                   className={`${inputClass} basis-full`}
                 />
+                <label className="flex basis-full items-center gap-2.5 text-sm font-medium text-clay-700">
+                  <input
+                    type="checkbox"
+                    name="orders_open"
+                    defaultChecked={item.orders_open}
+                    className="h-5 w-5 rounded border-clay-900/30 text-sage focus:ring-sage"
+                  />
+                  Open for online orders
+                </label>
                 <button type="submit" className={saveButtonClass}>
                   Save
                 </button>
               </form>
-              {item.payment_url && (
-                <div className="mt-3">
-                  <CopyLinkButton url={item.payment_url} label="Copy payment link" />
+              {(item.orders_open || item.payment_url) && (
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {item.orders_open && (
+                    <CopyLinkButton url={ORDER_PAGE_URL} label="Copy order page link" />
+                  )}
+                  {item.payment_url && (
+                    <CopyLinkButton url={item.payment_url} label="Copy payment link" />
+                  )}
                 </div>
               )}
               <div className="mt-3 text-sm text-clay-500">

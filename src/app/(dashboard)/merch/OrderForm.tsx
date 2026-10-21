@@ -38,6 +38,21 @@ export function OrderForm({
       </label>
 
       <label>
+        <span className="mb-1.5 block text-sm font-medium text-clay-700">Email</span>
+        <input
+          type="email"
+          name="buyer_email"
+          defaultValue={order?.buyer_email ?? ""}
+          className={inputClass}
+        />
+      </label>
+
+      <label>
+        <span className="mb-1.5 block text-sm font-medium text-clay-700">Phone</span>
+        <input name="buyer_phone" defaultValue={order?.buyer_phone ?? ""} className={inputClass} />
+      </label>
+
+      <label>
         <span className="mb-1.5 block text-sm font-medium text-clay-700">Item</span>
         <select
           name="item_id"

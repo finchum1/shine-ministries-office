@@ -122,6 +122,9 @@ export type MerchItemRow = {
   price: number;
   // Where buyers pay for this item (e.g. a Tithe.ly giving form), if any.
   payment_url: string | null;
+  // When true, the public order page (merch.shineministriesok.com) takes
+  // orders for this item. Off by default; turn it off to close sales.
+  orders_open: boolean;
   sort_order: number;
   created_at: string;
 };
@@ -137,6 +140,10 @@ export type MerchOrderRow = {
   payment_method: string | null;
   picked_up: boolean;
   notes: string | null;
+  buyer_email: string | null;
+  buyer_phone: string | null;
+  // "online" = placed through the public order page; "office" = entered here.
+  source: "office" | "online";
   created_at: string;
 };
 

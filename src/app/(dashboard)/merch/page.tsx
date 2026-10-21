@@ -15,6 +15,19 @@ function lineTotal(order: MerchOrderRow) {
   return order.quantity * Number(order.unit_price);
 }
 
+function contactLine(order: MerchOrderRow) {
+  return [order.buyer_email, order.buyer_phone].filter(Boolean).join(" · ");
+}
+
+function OnlineBadge({ order }: { order: MerchOrderRow }) {
+  if (order.source !== "online") return null;
+  return (
+    <span className="ml-2 rounded-full bg-lavender/20 px-2 py-0.5 align-middle text-[10px] font-semibold uppercase tracking-wide text-clay-900">
+      Online
+    </span>
+  );
+}
+
 function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
@@ -104,7 +117,13 @@ export default async function MerchPage({
 
   const needle = q.toLowerCase();
   const visible = orders.filter((o) => {
-    if (needle && !o.buyer_name.toLowerCase().includes(needle)) return false;
+    if (
+      needle &&
+      ![o.buyer_name, o.buyer_email ?? "", o.buyer_phone ?? ""].some((v) =>
+        v.toLowerCase().includes(needle)
+      )
+    )
+      return false;
     if (itemFilter && o.item_id !== itemFilter) return false;
     if (status === "unpaid" && o.paid) return false;
     if (status === "paid" && !o.paid) return false;
@@ -191,8 +210,8 @@ export default async function MerchPage({
           type="search"
           name="q"
           defaultValue={q}
-          placeholder="Search names"
-          aria-label="Search names"
+          placeholder="Search name, email or phone"
+          aria-label="Search name, email or phone"
           className={`${inputClass} min-w-48 flex-1`}
         />
         <select name="item" defaultValue={itemFilter} aria-label="Item" className={inputClass}>
@@ -246,6 +265,12 @@ export default async function MerchPage({
               <tr key={order.id}>
                 <td className="px-5 py-3 font-medium text-clay-900">
                   {order.buyer_name}
+                  <OnlineBadge order={order} />
+                  {contactLine(order) && (
+                    <span className="mt-0.5 block text-xs font-normal text-clay-500">
+                      {contactLine(order)}
+                    </span>
+                  )}
                   {order.notes && (
                     <span className="mt-0.5 block text-xs font-normal text-clay-500">
                       {order.notes}
@@ -286,7 +311,10 @@ export default async function MerchPage({
           {visible.map((order) => (
             <li key={order.id} className="p-4">
               <div className="flex items-start justify-between gap-3">
-                <p className="font-medium text-clay-900">{order.buyer_name}</p>
+                <p className="font-medium text-clay-900">
+                  {order.buyer_name}
+                  <OnlineBadge order={order} />
+                </p>
                 <p className="shrink-0 text-sm font-medium text-clay-900">
                   {formatMoney(lineTotal(order))}
                 </p>
@@ -300,6 +328,9 @@ export default async function MerchPage({
                   .filter(Boolean)
                   .join(" · ")}
               </p>
+              {contactLine(order) && (
+                <p className="mt-1 text-xs text-clay-500">{contactLine(order)}</p>
+              )}
               {order.notes && <p className="mt-1 text-xs text-clay-500">{order.notes}</p>}
               <div className="mt-3">
                 <StatusButtons order={order} paymentUrl={itemPaymentUrl.get(order.item_id) ?? null} />
