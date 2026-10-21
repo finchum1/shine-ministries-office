@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { MerchItemRow, MerchOrderRow } from "@/lib/supabase-types";
 import { MERCH_SIZES, PAYMENT_METHODS, formatMoney } from "@/lib/merch";
 
@@ -135,13 +136,16 @@ export function OrderForm({
         />
       </label>
 
-      <div className="sm:col-span-2">
+      <div className="flex items-center gap-4 sm:col-span-2">
         <button
           type="submit"
           className="inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
         >
           {order ? "Save changes" : "Add order"}
         </button>
+        <Link href="/merch" className="text-sm font-medium text-clay-500 hover:text-clay-900">
+          Cancel
+        </Link>
       </div>
     </form>
   );

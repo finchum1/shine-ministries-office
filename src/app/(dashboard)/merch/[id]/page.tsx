@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { MerchItemRow, MerchOrderRow } from "@/lib/supabase-types";
+import { BackLink } from "@/components/BackLink";
 import { OrderForm } from "../OrderForm";
 import { updateOrder } from "../actions";
 
@@ -24,7 +25,10 @@ export default async function EditOrderPage({ params }: { params: Promise<{ id: 
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-clay-900">Edit Order</h1>
+      <div className="flex items-center gap-2">
+        <BackLink href="/merch" label="Back to Merch" />
+        <h1 className="font-display text-2xl text-clay-900">Edit Order</h1>
+      </div>
       <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5 sm:p-8">
         <OrderForm
           order={order}

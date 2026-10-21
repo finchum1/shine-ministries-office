@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { MerchItemRow } from "@/lib/supabase-types";
+import { BackLink } from "@/components/BackLink";
 import { OrderForm } from "../OrderForm";
 import { createOrder } from "../actions";
 
@@ -18,7 +19,10 @@ export default async function NewOrderPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-clay-900">New Order</h1>
+      <div className="flex items-center gap-2">
+        <BackLink href="/merch" label="Back to Merch" />
+        <h1 className="font-display text-2xl text-clay-900">New Order</h1>
+      </div>
       <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5 sm:p-8">
         {items.length === 0 ? (
           <p className="text-sm text-clay-700">
