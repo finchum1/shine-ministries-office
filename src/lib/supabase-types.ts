@@ -51,6 +51,18 @@ export type BrandAssetRow = {
   created_at: string;
 };
 
+// One Good News Therapy podcast logo: a layout in one color version, as a
+// vector SVG and a transparent PNG (both hosted on the main site).
+export type PodcastLogoRow = {
+  id: string;
+  layout: string;
+  colorway: string;
+  svg_url: string;
+  png_url: string;
+  sort_order: number;
+  created_at: string;
+};
+
 export type FolderRow = {
   id: string;
   name: string;
