@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { MerchItemRow } from "@/lib/supabase-types";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
+import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { createItem, updateItem, deleteItem } from "../actions";
 
 const inputClass =
@@ -69,6 +70,13 @@ export default async function MerchItemsPage() {
             aria-label="Price"
             className={`${inputClass} w-28`}
           />
+          <input
+            name="payment_url"
+            type="url"
+            placeholder="Payment link (optional) — where buyers pay"
+            aria-label="Payment link"
+            className={`${inputClass} basis-full`}
+          />
           <button type="submit" className={saveButtonClass}>
             Add item
           </button>
@@ -95,10 +103,23 @@ export default async function MerchItemsPage() {
                   aria-label="Price"
                   className={`${inputClass} w-28`}
                 />
+                <input
+                  name="payment_url"
+                  type="url"
+                  defaultValue={item.payment_url ?? ""}
+                  placeholder="Payment link (optional) — where buyers pay"
+                  aria-label="Payment link"
+                  className={`${inputClass} basis-full`}
+                />
                 <button type="submit" className={saveButtonClass}>
                   Save
                 </button>
               </form>
+              {item.payment_url && (
+                <div className="mt-3">
+                  <CopyLinkButton url={item.payment_url} label="Copy payment link" />
+                </div>
+              )}
               <div className="mt-3 text-sm text-clay-500">
                 {orderCount > 0 ? (
                   <span>

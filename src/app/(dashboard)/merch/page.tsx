@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import type { MerchItemRow, MerchOrderRow } from "@/lib/supabase-types";
 import { EditDeleteActions } from "@/components/EditDeleteActions";
+import { CopyLinkButton } from "@/components/CopyLinkButton";
 import { formatMoney, sizeRank } from "@/lib/merch";
 import { deleteOrder, setPaid, setPickedUp } from "./actions";
 
@@ -18,7 +19,13 @@ function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
-function StatusButtons({ order }: { order: MerchOrderRow }) {
+function StatusButtons({
+  order,
+  paymentUrl,
+}: {
+  order: MerchOrderRow;
+  paymentUrl: string | null;
+}) {
   return (
     <span className="flex flex-wrap items-center gap-2">
       <form action={setPaid.bind(null, order.id, !order.paid)}>
@@ -47,6 +54,7 @@ function StatusButtons({ order }: { order: MerchOrderRow }) {
           {order.picked_up ? "Picked up" : "Not picked up"}
         </button>
       </form>
+      {!order.paid && paymentUrl && <CopyLinkButton url={paymentUrl} label="Copy pay link" />}
     </span>
   );
 }
@@ -72,6 +80,7 @@ export default async function MerchPage({
   const orders = (ordersData as MerchOrderRow[] | null) ?? [];
   const error = itemsError ?? ordersError;
   const itemName = new Map(items.map((i) => [i.id, i.name]));
+  const itemPaymentUrl = new Map(items.map((i) => [i.id, i.payment_url]));
 
   // Totals and size counts always cover every order, not just the filtered
   // view -- they're the numbers you'd hand to whoever is printing the shirts.
@@ -248,7 +257,7 @@ export default async function MerchPage({
                 <td className="px-5 py-3 text-clay-700">{order.quantity}</td>
                 <td className="px-5 py-3 text-clay-700">{formatMoney(lineTotal(order))}</td>
                 <td className="px-5 py-3">
-                  <StatusButtons order={order} />
+                  <StatusButtons order={order} paymentUrl={itemPaymentUrl.get(order.item_id) ?? null} />
                 </td>
                 <td className="px-5 py-3 text-right">
                   <EditDeleteActions
@@ -293,7 +302,7 @@ export default async function MerchPage({
               </p>
               {order.notes && <p className="mt-1 text-xs text-clay-500">{order.notes}</p>}
               <div className="mt-3">
-                <StatusButtons order={order} />
+                <StatusButtons order={order} paymentUrl={itemPaymentUrl.get(order.item_id) ?? null} />
               </div>
               <EditDeleteActions
                 editHref={`/merch/${order.id}`}

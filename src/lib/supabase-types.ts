@@ -120,6 +120,8 @@ export type MerchItemRow = {
   name: string;
   // numeric columns come back from PostgREST as JS numbers.
   price: number;
+  // Where buyers pay for this item (e.g. a Tithe.ly giving form), if any.
+  payment_url: string | null;
   sort_order: number;
   created_at: string;
 };

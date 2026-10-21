@@ -12,6 +12,23 @@ function parsePrice(raw: string): number {
   return Math.round(price * 100) / 100;
 }
 
+// Blank = no payment link. Anything else must be a real http(s) URL, since
+// it gets copied and sent to buyers.
+function parsePaymentUrl(raw: string): string | null {
+  const value = raw.trim();
+  if (value === "") return null;
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error("Payment link must be a full web address starting with https://");
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error("Payment link must be a full web address starting with https://");
+  }
+  return url.toString();
+}
+
 // ---------------------------------------------------------------------------
 // Orders
 // ---------------------------------------------------------------------------
@@ -127,9 +144,12 @@ export async function createItem(formData: FormData) {
     .limit(1)
     .maybeSingle();
 
-  const { error } = await supabase
-    .from("merch_items")
-    .insert({ name, price, sort_order: (last?.sort_order ?? -1) + 1 });
+  const { error } = await supabase.from("merch_items").insert({
+    name,
+    price,
+    payment_url: parsePaymentUrl(String(formData.get("payment_url") ?? "")),
+    sort_order: (last?.sort_order ?? -1) + 1,
+  });
   if (error) throw new Error(error.message);
 
   revalidatePath("/merch/items");
@@ -144,7 +164,14 @@ export async function updateItem(id: string, formData: FormData) {
   const price = parsePrice(String(formData.get("price") ?? "0") || "0");
 
   const supabase = await createClient();
-  const { error } = await supabase.from("merch_items").update({ name, price }).eq("id", id);
+  const { error } = await supabase
+    .from("merch_items")
+    .update({
+      name,
+      price,
+      payment_url: parsePaymentUrl(String(formData.get("payment_url") ?? "")),
+    })
+    .eq("id", id);
   if (error) throw new Error(error.message);
 
   revalidatePath("/merch/items");
