@@ -1,4 +1,5 @@
 import type { BibleStudyRow } from "@/lib/supabase-types";
+import { FormButtons } from "@/components/FormButtons";
 
 const inputClass =
   "w-full rounded-xl border border-clay-900/12 bg-cream px-4 py-3 text-sm text-clay-900 outline-none transition-shadow placeholder:text-clay-500 focus:border-terracotta focus:ring-2 focus:ring-terracotta/30";
@@ -77,14 +78,11 @@ export function BibleStudyForm({
         Active (visible on the live site)
       </label>
 
-      <div className="sm:col-span-2">
-        <button
-          type="submit"
-          className="inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
-        >
-          {study ? "Save changes" : "Create Bible study"}
-        </button>
-      </div>
+      <FormButtons
+        submitLabel={study ? "Save changes" : "Create Bible study"}
+        cancelHref="/website/bible-studies"
+        className="sm:col-span-2"
+      />
     </form>
   );
 }

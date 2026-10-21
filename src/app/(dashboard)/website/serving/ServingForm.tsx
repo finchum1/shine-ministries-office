@@ -1,4 +1,5 @@
 import type { ServingOpportunityRow } from "@/lib/supabase-types";
+import { FormButtons } from "@/components/FormButtons";
 
 const inputClass =
   "w-full rounded-xl border border-clay-900/12 bg-cream px-4 py-3 text-sm text-clay-900 outline-none transition-shadow placeholder:text-clay-500 focus:border-terracotta focus:ring-2 focus:ring-terracotta/30";
@@ -37,14 +38,11 @@ export function ServingForm({
         />
       </label>
 
-      <div className="sm:col-span-2">
-        <button
-          type="submit"
-          className="inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
-        >
-          {opportunity ? "Save changes" : "Create opportunity"}
-        </button>
-      </div>
+      <FormButtons
+        submitLabel={opportunity ? "Save changes" : "Create opportunity"}
+        cancelHref="/website/serving"
+        className="sm:col-span-2"
+      />
     </form>
   );
 }

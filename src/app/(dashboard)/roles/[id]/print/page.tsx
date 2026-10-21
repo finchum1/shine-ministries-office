@@ -3,6 +3,7 @@ import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import type { LeadershipRoleRow } from "@/lib/supabase-types";
 import { PrintButton } from "@/components/PrintButton";
+import { BackLink } from "@/components/BackLink";
 
 export default async function RolePrintPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -14,7 +15,8 @@ export default async function RolePrintPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="mx-auto max-w-3xl px-8 py-10 print:px-0 print:py-0">
-      <div className="flex justify-end print:hidden">
+      <div className="flex items-center justify-between print:hidden">
+        <BackLink href="/roles" label="Back to Roles" />
         <PrintButton />
       </div>
 

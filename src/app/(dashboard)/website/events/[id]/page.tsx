@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { EventRow } from "@/lib/supabase-types";
 import { EventForm } from "../EventForm";
 import { updateEvent } from "../actions";
+import { BackLink } from "@/components/BackLink";
 
 export default async function EditEventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,7 +16,10 @@ export default async function EditEventPage({ params }: { params: Promise<{ id: 
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-clay-900">Edit Event</h1>
+      <div className="flex items-center gap-2">
+        <BackLink href="/website/events" label="Back to Events" />
+        <h1 className="font-display text-2xl text-clay-900">Edit Event</h1>
+      </div>
       <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5 sm:p-8">
         <EventForm event={event} action={updateEvent.bind(null, id)} />
       </div>

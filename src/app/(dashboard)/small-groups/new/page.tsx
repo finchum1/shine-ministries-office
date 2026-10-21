@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { PersonRow } from "@/lib/supabase-types";
+import { BackLink } from "@/components/BackLink";
+import { FormButtons } from "@/components/FormButtons";
 import { createSmallGroup } from "../actions";
 
 const inputClass =
@@ -19,7 +21,10 @@ export default async function NewSmallGroupPage() {
 
   return (
     <div>
-      <h1 className="font-display text-2xl text-clay-900">New Small Group</h1>
+      <div className="flex items-center gap-2">
+        <BackLink href="/small-groups" label="Back to Small Groups" />
+        <h1 className="font-display text-2xl text-clay-900">New Small Group</h1>
+      </div>
       <p className="mt-1 text-sm text-clay-700">
         Name the group and add its first members. You can set a leader and add more people once
         it&rsquo;s created.
@@ -114,14 +119,7 @@ export default async function NewSmallGroupPage() {
             </div>
           </div>
 
-          <div>
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
-            >
-              Create group
-            </button>
-          </div>
+          <FormButtons submitLabel="Create group" cancelHref="/small-groups" />
         </form>
       </div>
     </div>

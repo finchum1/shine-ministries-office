@@ -1,9 +1,14 @@
+import { BackLink } from "@/components/BackLink";
+import { FormButtons } from "@/components/FormButtons";
 import { importPeople } from "../actions";
 
 export default function ImportPeoplePage() {
   return (
     <div>
-      <h1 className="font-display text-2xl text-clay-900">Add Multiple People</h1>
+      <div className="flex items-center gap-2">
+        <BackLink href="/people" label="Back to People" />
+        <h1 className="font-display text-2xl text-clay-900">Add Multiple People</h1>
+      </div>
       <p className="mt-1 text-sm text-clay-700">
         Paste one person per line. Just a name is fine (e.g. typed up from a screenshot or
         email) -- add email and/or phone after a comma if you have them.
@@ -22,14 +27,7 @@ export default function ImportPeoplePage() {
             />
           </label>
 
-          <div>
-            <button
-              type="submit"
-              className="inline-flex items-center justify-center rounded-full bg-sage px-6 py-3 text-sm font-medium text-cream shadow-sm shadow-sage/20 transition-colors hover:brightness-95"
-            >
-              Add everyone
-            </button>
-          </div>
+          <FormButtons submitLabel="Add everyone" cancelHref="/people" />
         </form>
       </div>
     </div>
