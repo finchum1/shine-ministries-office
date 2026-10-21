@@ -115,6 +115,29 @@ export type EventAttendanceRow = {
   updated_at: string;
 };
 
+export type MerchItemRow = {
+  id: string;
+  name: string;
+  // numeric columns come back from PostgREST as JS numbers.
+  price: number;
+  sort_order: number;
+  created_at: string;
+};
+
+export type MerchOrderRow = {
+  id: string;
+  item_id: string;
+  buyer_name: string;
+  size: string | null;
+  quantity: number;
+  unit_price: number;
+  paid: boolean;
+  payment_method: string | null;
+  picked_up: boolean;
+  notes: string | null;
+  created_at: string;
+};
+
 export type LeadershipRoleRow = {
   id: string;
   title: string;

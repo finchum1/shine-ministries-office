@@ -33,6 +33,10 @@ const sections: NavSectionConfig[] = [
     ],
   },
   {
+    label: "Merch",
+    links: [{ href: "/merch", label: "Orders" }],
+  },
+  {
     label: "Brand",
     links: [{ href: "/brand", label: "Logos, colors & type" }],
   },
