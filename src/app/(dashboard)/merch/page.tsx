@@ -183,6 +183,12 @@ export default async function MerchPage({
         </div>
         <div className="flex items-center gap-3">
           <Link
+            href="/merch/print"
+            className="inline-flex items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-clay-900"
+          >
+            Print Pickup List
+          </Link>
+          <Link
             href="/merch/items"
             className="inline-flex items-center justify-center rounded-full border border-clay-900/15 px-5 py-2.5 text-sm font-medium text-clay-700 transition-colors hover:border-terracotta hover:text-clay-900"
           >
