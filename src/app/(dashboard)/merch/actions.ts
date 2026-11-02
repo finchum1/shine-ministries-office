@@ -14,17 +14,17 @@ function parsePrice(raw: string): number {
 
 // Blank = no payment link. Anything else must be a real http(s) URL, since
 // it gets copied and sent to buyers.
-function parsePaymentUrl(raw: string): string | null {
+function parseWebUrl(raw: string, label = "Payment link"): string | null {
   const value = raw.trim();
   if (value === "") return null;
   let url: URL;
   try {
     url = new URL(value);
   } catch {
-    throw new Error("Payment link must be a full web address starting with https://");
+    throw new Error(`${label} must be a full web address starting with https://`);
   }
   if (url.protocol !== "https:" && url.protocol !== "http:") {
-    throw new Error("Payment link must be a full web address starting with https://");
+    throw new Error(`${label} must be a full web address starting with https://`);
   }
   return url.toString();
 }
@@ -110,12 +110,23 @@ export async function deleteOrder(id: string) {
 
 // Quick toggles straight from the list, so marking someone paid or picked up
 // is one tap instead of opening the edit form.
+//
+// Items ordered together on the website are one payment, so marking one of
+// them paid (or unpaid) does the same for every item in that combined order.
 export async function setPaid(id: string, paid: boolean) {
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data: order, error: readError } = await supabase
     .from("merch_orders")
-    .update(paid ? { paid } : { paid, payment_method: null })
-    .eq("id", id);
+    .select("checkout_id")
+    .eq("id", id)
+    .single();
+  if (readError) throw new Error(readError.message);
+
+  const changes = paid ? { paid } : { paid, payment_method: null };
+  const query = supabase.from("merch_orders").update(changes);
+  const { error } = await (order.checkout_id
+    ? query.eq("checkout_id", order.checkout_id)
+    : query.eq("id", id));
   if (error) throw new Error(error.message);
 
   revalidatePath("/merch");
@@ -133,6 +144,15 @@ export async function setPickedUp(id: string, picked_up: boolean) {
 // Items
 // ---------------------------------------------------------------------------
 
+// The photo, description and size setting that go on the public order page.
+function readItemDisplayFields(formData: FormData) {
+  return {
+    image_url: parseWebUrl(String(formData.get("image_url") ?? ""), "Photo link"),
+    description: String(formData.get("description") ?? "").trim() || null,
+    has_sizes: formData.get("has_sizes") === "on",
+  };
+}
+
 export async function createItem(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   if (!name) throw new Error("Name is required.");
@@ -149,8 +169,9 @@ export async function createItem(formData: FormData) {
   const { error } = await supabase.from("merch_items").insert({
     name,
     price,
-    payment_url: parsePaymentUrl(String(formData.get("payment_url") ?? "")),
+    payment_url: parseWebUrl(String(formData.get("payment_url") ?? "")),
     orders_open: formData.get("orders_open") === "on",
+    ...readItemDisplayFields(formData),
     sort_order: (last?.sort_order ?? -1) + 1,
   });
   if (error) throw new Error(error.message);
@@ -172,8 +193,9 @@ export async function updateItem(id: string, formData: FormData) {
     .update({
       name,
       price,
-      payment_url: parsePaymentUrl(String(formData.get("payment_url") ?? "")),
+      payment_url: parseWebUrl(String(formData.get("payment_url") ?? "")),
       orders_open: formData.get("orders_open") === "on",
+      ...readItemDisplayFields(formData),
     })
     .eq("id", id);
   if (error) throw new Error(error.message);

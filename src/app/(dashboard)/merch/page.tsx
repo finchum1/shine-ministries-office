@@ -32,19 +32,42 @@ function first(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+type CheckoutGroup = { count: number; total: number };
+
+// Shown under a name when the row is one of several items ordered together.
+function CombinedNote({ group }: { group: CheckoutGroup | undefined }) {
+  if (!group || group.count < 2) return null;
+  return (
+    <span className="mt-0.5 block text-xs font-normal text-clay-500">
+      Combined order · {group.count} items · {formatMoney(group.total)}
+    </span>
+  );
+}
+
 function StatusButtons({
   order,
   paymentUrl,
+  group,
 }: {
   order: MerchOrderRow;
   paymentUrl: string | null;
+  group?: CheckoutGroup;
 }) {
+  const combined = group && group.count >= 2;
   return (
     <span className="flex flex-wrap items-center gap-2">
       <form action={setPaid.bind(null, order.id, !order.paid)}>
         <button
           type="submit"
-          title={order.paid ? "Mark as unpaid" : "Mark as paid"}
+          title={
+            combined
+              ? order.paid
+                ? "Mark the whole combined order as unpaid"
+                : "Mark the whole combined order as paid"
+              : order.paid
+                ? "Mark as unpaid"
+                : "Mark as paid"
+          }
           className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
             order.paid
               ? "bg-sage/15 text-clay-900 hover:bg-sage/25"
@@ -108,12 +131,28 @@ export default async function MerchPage({
         const key = o.size ?? "No size";
         bySize.set(key, (bySize.get(key) ?? 0) + o.quantity);
       }
-      const sizes = [...bySize.entries()].sort(
-        (a, b) => sizeRank(a[0]) - sizeRank(b[0]) || a[0].localeCompare(b[0])
-      );
-      return { item, sizes, total: sizes.reduce((s, [, n]) => s + n, 0) };
+      const total = [...bySize.values()].reduce((s, n) => s + n, 0);
+      // Items without sizes (a tote bag) just show how many were ordered.
+      const sizes = item.has_sizes
+        ? [...bySize.entries()].sort(
+            (a, b) => sizeRank(a[0]) - sizeRank(b[0]) || a[0].localeCompare(b[0])
+          )
+        : [];
+      return { item, sizes, total };
     })
     .filter((entry) => entry.total > 0);
+
+  // Items ordered together on the website share a checkout; remember how many
+  // there are and what they come to, so each row can say so.
+  const checkoutGroups = new Map<string, CheckoutGroup>();
+  for (const o of orders) {
+    if (!o.checkout_id) continue;
+    const g = checkoutGroups.get(o.checkout_id) ?? { count: 0, total: 0 };
+    g.count += 1;
+    g.total += lineTotal(o);
+    checkoutGroups.set(o.checkout_id, g);
+  }
+  const groupOf = (o: MerchOrderRow) => (o.checkout_id ? checkoutGroups.get(o.checkout_id) : undefined);
 
   const needle = q.toLowerCase();
   const visible = orders.filter((o) => {
@@ -182,7 +221,7 @@ export default async function MerchPage({
 
       {sizeCounts.length > 0 && (
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5">
-          <h2 className="font-display text-lg text-clay-900">Sizes to order</h2>
+          <h2 className="font-display text-lg text-clay-900">What to order</h2>
           <ul className="mt-3 space-y-3">
             {sizeCounts.map(({ item, sizes, total }) => (
               <li key={item.id} className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -266,6 +305,7 @@ export default async function MerchPage({
                 <td className="px-5 py-3 font-medium text-clay-900">
                   {order.buyer_name}
                   <OnlineBadge order={order} />
+                  <CombinedNote group={groupOf(order)} />
                   {contactLine(order) && (
                     <span className="mt-0.5 block text-xs font-normal text-clay-500">
                       {contactLine(order)}
@@ -282,7 +322,11 @@ export default async function MerchPage({
                 <td className="px-5 py-3 text-clay-700">{order.quantity}</td>
                 <td className="px-5 py-3 text-clay-700">{formatMoney(lineTotal(order))}</td>
                 <td className="px-5 py-3">
-                  <StatusButtons order={order} paymentUrl={itemPaymentUrl.get(order.item_id) ?? null} />
+                  <StatusButtons
+                  order={order}
+                  paymentUrl={itemPaymentUrl.get(order.item_id) ?? null}
+                  group={groupOf(order)}
+                />
                 </td>
                 <td className="px-5 py-3 text-right">
                   <EditDeleteActions
@@ -328,12 +372,17 @@ export default async function MerchPage({
                   .filter(Boolean)
                   .join(" · ")}
               </p>
+              <CombinedNote group={groupOf(order)} />
               {contactLine(order) && (
                 <p className="mt-1 text-xs text-clay-500">{contactLine(order)}</p>
               )}
               {order.notes && <p className="mt-1 text-xs text-clay-500">{order.notes}</p>}
               <div className="mt-3">
-                <StatusButtons order={order} paymentUrl={itemPaymentUrl.get(order.item_id) ?? null} />
+                <StatusButtons
+                  order={order}
+                  paymentUrl={itemPaymentUrl.get(order.item_id) ?? null}
+                  group={groupOf(order)}
+                />
               </div>
               <EditDeleteActions
                 editHref={`/merch/${order.id}`}

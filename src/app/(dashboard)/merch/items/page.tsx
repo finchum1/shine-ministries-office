@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { MerchItemRow } from "@/lib/supabase-types";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { CopyLinkButton } from "@/components/CopyLinkButton";
+import { ItemPhotoField } from "@/components/ItemPhotoField";
 import { createItem, updateItem, deleteItem } from "../actions";
 
 const inputClass =
@@ -80,6 +81,22 @@ export default async function MerchItemsPage() {
             aria-label="Payment link"
             className={`${inputClass} basis-full`}
           />
+          <ItemPhotoField />
+          <input
+            name="description"
+            placeholder="Short description (optional) — shown on the order page"
+            aria-label="Description"
+            className={`${inputClass} basis-full`}
+          />
+          <label className="flex basis-full items-center gap-2.5 text-sm font-medium text-clay-700">
+            <input
+              type="checkbox"
+              name="has_sizes"
+              defaultChecked
+              className="h-5 w-5 rounded border-clay-900/30 text-sage focus:ring-sage"
+            />
+            Comes in sizes
+          </label>
           <label className="flex basis-full items-center gap-2.5 text-sm font-medium text-clay-700">
             <input
               type="checkbox"
@@ -122,6 +139,23 @@ export default async function MerchItemsPage() {
                   aria-label="Payment link"
                   className={`${inputClass} basis-full`}
                 />
+                <ItemPhotoField defaultValue={item.image_url} />
+                <input
+                  name="description"
+                  defaultValue={item.description ?? ""}
+                  placeholder="Short description (optional) — shown on the order page"
+                  aria-label="Description"
+                  className={`${inputClass} basis-full`}
+                />
+                <label className="flex basis-full items-center gap-2.5 text-sm font-medium text-clay-700">
+                  <input
+                    type="checkbox"
+                    name="has_sizes"
+                    defaultChecked={item.has_sizes}
+                    className="h-5 w-5 rounded border-clay-900/30 text-sage focus:ring-sage"
+                  />
+                  Comes in sizes
+                </label>
                 <label className="flex basis-full items-center gap-2.5 text-sm font-medium text-clay-700">
                   <input
                     type="checkbox"

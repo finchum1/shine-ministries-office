@@ -137,6 +137,11 @@ export type MerchItemRow = {
   // When true, the public order page (merch.shineministriesok.com) takes
   // orders for this item. Off by default; turn it off to close sales.
   orders_open: boolean;
+  // Photo and short description shown on the public order page.
+  image_url: string | null;
+  description: string | null;
+  // False for things like a tote bag -- the order page then skips the size field.
+  has_sizes: boolean;
   sort_order: number;
   created_at: string;
 };
@@ -156,6 +161,8 @@ export type MerchOrderRow = {
   buyer_phone: string | null;
   // "online" = placed through the public order page; "office" = entered here.
   source: "office" | "online";
+  // Rows placed together on the order page share one checkout (one payment).
+  checkout_id: string | null;
   created_at: string;
 };
 
