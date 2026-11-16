@@ -12,6 +12,8 @@ export const config = {
     // session -- the browser's own install machinery fetches them, not a
     // logged-in page load, and a redirect-to-/login response in place of
     // the real manifest/sw.js silently breaks installability.
-    "/((?!_next/static|_next/image|favicon.ico|icon.png|brand/|manifest.webmanifest|sw.js|icons/).*)",
+    // /mcp is the bot endpoint: it authenticates itself with a token, and a
+    // redirect to the login page would break every MCP client.
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|brand/|manifest.webmanifest|sw.js|icons/|mcp(?:/|$)).*)",
   ],
 };

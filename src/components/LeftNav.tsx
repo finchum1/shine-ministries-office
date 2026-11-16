@@ -44,6 +44,13 @@ const sections: NavSectionConfig[] = [
     label: "Files",
     links: [{ href: "/files", label: "All Files" }],
   },
+  {
+    label: "Admin",
+    links: [
+      { href: "/team", label: "Team logins" },
+      { href: "/connections", label: "Bot connections" },
+    ],
+  },
 ];
 
 function itemClass(active: boolean) {

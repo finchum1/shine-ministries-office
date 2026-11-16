@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProfileSettingsForm } from "@/components/ProfileSettingsForm";
+import { ChangePasswordForm } from "@/components/ChangePasswordForm";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -16,6 +17,10 @@ export default async function SettingsPage() {
 
       <div className="mt-6 max-w-md rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5 sm:p-8">
         <ProfileSettingsForm email={user?.email ?? ""} initialAvatarUrl={avatarUrl} />
+      </div>
+
+      <div className="mt-6 max-w-md rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5 sm:p-8">
+        <ChangePasswordForm />
       </div>
     </div>
   );
