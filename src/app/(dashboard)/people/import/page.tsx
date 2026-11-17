@@ -11,7 +11,7 @@ export default function ImportPeoplePage() {
       </div>
       <p className="mt-1 text-sm text-clay-700">
         Paste one person per line. Just a name is fine (e.g. typed up from a screenshot or
-        email) -- add email and/or phone after a comma if you have them.
+        email) -- add email, phone and/or birthday after commas if you have them (birthday as 3/14, 3/14/1980 or March 14).
       </p>
 
       <div className="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-clay-900/5 sm:p-8">
@@ -22,7 +22,7 @@ export default function ImportPeoplePage() {
               name="people_text"
               required
               rows={12}
-              placeholder={"Jane Smith\nJohn Doe, john@email.com\nMary Jones, , 555-123-4567"}
+              placeholder={"Jane Smith\nJohn Doe, john@email.com\nMary Jones, , 555-123-4567, 3/14\nAnn Lee, , , March 2 1985"}
               className="w-full rounded-xl border border-clay-900/12 bg-cream px-4 py-3 font-mono text-sm text-clay-900 outline-none transition-shadow placeholder:text-clay-500 focus:border-terracotta focus:ring-2 focus:ring-terracotta/30"
             />
           </label>

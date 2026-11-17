@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PeopleDirectory } from "@/components/PeopleDirectory";
+import { todayCentralIso } from "@/lib/birthday";
 import { deletePerson } from "./actions";
 
 type PersonWithGroups = {
@@ -8,6 +9,9 @@ type PersonWithGroups = {
   full_name: string;
   email: string | null;
   phone: string | null;
+  birth_month: number | null;
+  birth_day: number | null;
+  birth_year: number | null;
   person_small_groups: { small_groups: { name: string } | null }[] | null;
 };
 
@@ -22,7 +26,7 @@ export default async function PeoplePage() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("people")
-    .select("id, full_name, email, phone, person_small_groups(small_groups(name))")
+    .select("id, full_name, email, phone, birth_month, birth_day, birth_year, person_small_groups(small_groups(name))")
     .order("full_name", { ascending: true });
 
   const people = ((data as PersonWithGroups[] | null) ?? []).map((person) => ({
@@ -30,6 +34,9 @@ export default async function PeoplePage() {
     full_name: person.full_name,
     email: person.email,
     phone: person.phone,
+    birth_month: person.birth_month,
+    birth_day: person.birth_day,
+    birth_year: person.birth_year,
     groups: groupNames(person),
   }));
 
@@ -64,7 +71,7 @@ export default async function PeoplePage() {
         </p>
       )}
 
-      <PeopleDirectory people={people} deletePerson={deletePerson} />
+      <PeopleDirectory people={people} deletePerson={deletePerson} todayIso={todayCentralIso()} />
     </div>
   );
 }

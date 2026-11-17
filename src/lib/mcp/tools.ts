@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { isValidMonthDay } from "@/lib/birthday";
 
 // The tools a connected bot can call. Principles:
 //  * Bots see what staff see in the back office -- the same tables, nothing
@@ -24,6 +25,33 @@ export type Tool = {
 class ToolError extends Error {}
 
 // ---- argument helpers -------------------------------------------------------
+
+// Birthday = month + day, year optional. Returns null when the caller gave no
+// birthday fields at all; otherwise all three columns (year null if omitted),
+// so a birthday is always replaced wholesale rather than half-updated.
+function birthdayFields(args: Args): { birth_month: number; birth_day: number; birth_year: number | null } | null {
+  const has = (k: string) => args[k] !== undefined && args[k] !== null;
+  if (!has("birth_month") && !has("birth_day") && !has("birth_year")) return null;
+  if (!has("birth_month") || !has("birth_day")) throw new ToolError("A birthday needs both birth_month and birth_day (birth_year is optional).");
+  const month = args.birth_month;
+  const day = args.birth_day;
+  if (typeof month !== "number" || typeof day !== "number" || !isValidMonthDay(month, day)) {
+    throw new ToolError("birth_month must be 1-12 and birth_day a real day of that month.");
+  }
+  let year: number | null = null;
+  if (has("birth_year")) {
+    const y = args.birth_year;
+    if (typeof y !== "number" || !Number.isInteger(y) || y < 1900 || y > 2100) throw new ToolError("birth_year must be a whole number from 1900 to 2100.");
+    year = y;
+  }
+  return { birth_month: month, birth_day: day, birth_year: year };
+}
+
+const BIRTHDAY_PROPS = {
+  birth_month: { type: "integer", description: "Birthday month, 1-12. Give with birth_day." },
+  birth_day: { type: "integer", description: "Birthday day of month, 1-31." },
+  birth_year: { type: "integer", description: "Birth year (optional; leave out if unknown)." },
+};
 
 function optStr(args: Args, key: string, max = 500): string | null {
   const v = args[key];
@@ -209,7 +237,7 @@ const readTools: Tool[] = [
     name: "list_people",
     title: "List people",
     description:
-      "The people directory (name, email, phone) with the small groups each person is in. Private member information: share only with the staff member you are working for.",
+      "The people directory (name, email, phone, birthday) with the small groups each person is in. Birthday is birth_month/birth_day (birth_year is often empty). Private member information: share only with the staff member you are working for.",
     inputSchema: {
       type: "object",
       properties: {
@@ -223,7 +251,7 @@ const readTools: Tool[] = [
       const search = optStr(args, "search", 100);
       let q = db
         .from("people")
-        .select("id, full_name, email, phone")
+        .select("id, full_name, email, phone, birth_month, birth_day, birth_year")
         .order("full_name")
         .limit(optInt(args, "limit", 100, 1, 500));
       if (search) {
@@ -231,7 +259,7 @@ const readTools: Tool[] = [
         const s = search.replace(/[,()*%\\]/g, " ").trim();
         if (s) q = q.or(`full_name.ilike.*${s}*,email.ilike.*${s}*`);
       }
-      const people = check<{ id: string; full_name: string; email: string | null; phone: string | null }[]>(await q);
+      const people = check<{ id: string; full_name: string; email: string | null; phone: string | null; birth_month: number | null; birth_day: number | null; birth_year: number | null }[]>(await q);
       if (people.length === 0) return [];
 
       const links = check<{ person_id: string; small_group_id: string }[]>(
@@ -480,7 +508,7 @@ const writeTools: Tool[] = [
     description: "Adds someone to the people directory. Fails if that email is already there.",
     inputSchema: {
       type: "object",
-      properties: { full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" } },
+      properties: { full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, ...BIRTHDAY_PROPS },
       required: ["full_name"],
     },
     write: true,
@@ -492,7 +520,7 @@ const writeTools: Tool[] = [
         if (dup.length > 0) throw new ToolError(`${dup[0].full_name} (id ${dup[0].id}) already has that email. Use update_person instead.`);
       }
       const created = check<{ id: string }>(
-        await db.from("people").insert({ full_name: reqStr(args, "full_name", 200), email, phone: optStr(args, "phone", 50) }).select("id").single()
+        await db.from("people").insert({ full_name: reqStr(args, "full_name", 200), email, phone: optStr(args, "phone", 50), ...(birthdayFields(args) ?? {}) }).select("id").single()
       );
       return { created: true, id: created.id };
     },
@@ -500,10 +528,10 @@ const writeTools: Tool[] = [
   {
     name: "update_person",
     title: "Edit a person",
-    description: "Changes a person's name, email or phone. Only the fields you give are changed. Pass an empty string to clear an email or phone.",
+    description: "Changes a person's name, email, phone or birthday. Only the fields you give are changed. Pass an empty string to clear an email or phone. A birthday (birth_month + birth_day, optional birth_year) replaces the old one; pass clear_birthday: true to remove it.",
     inputSchema: {
       type: "object",
-      properties: { id: { type: "string" }, full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" } },
+      properties: { id: { type: "string" }, full_name: { type: "string" }, email: { type: "string" }, phone: { type: "string" }, ...BIRTHDAY_PROPS, clear_birthday: { type: "boolean" } },
       required: ["id"],
     },
     write: true,
@@ -514,6 +542,13 @@ const writeTools: Tool[] = [
       if ("full_name" in args) patch.full_name = reqStr(args, "full_name", 200);
       if ("email" in args) patch.email = optEmail(args, "email");
       if ("phone" in args) patch.phone = optStr(args, "phone", 50);
+      if (optBool(args, "clear_birthday", false)) {
+        if (birthdayFields(args)) throw new ToolError("Give either a birthday or clear_birthday, not both.");
+        Object.assign(patch, { birth_month: null, birth_day: null, birth_year: null });
+      } else {
+        const b = birthdayFields(args);
+        if (b) Object.assign(patch, b);
+      }
       if (Object.keys(patch).length === 0) throw new ToolError("Nothing to change -- give at least one field.");
       const res = check<{ id: string }[]>(await db.from("people").update(patch).eq("id", id).select("id"));
       if (res.length === 0) throw new ToolError("No person with that id.");

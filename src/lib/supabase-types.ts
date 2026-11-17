@@ -95,6 +95,9 @@ export type PersonRow = {
   full_name: string;
   email: string | null;
   phone: string | null;
+  birth_month: number | null;
+  birth_day: number | null;
+  birth_year: number | null;
   created_at: string;
 };
 
