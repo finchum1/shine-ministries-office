@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { PeopleDirectory } from "@/components/PeopleDirectory";
 import { todayCentralIso } from "@/lib/birthday";
 import { deletePerson } from "./actions";
+import { sendBirthdaySummaryNow } from "./birthdayActions";
+import { SendBirthdaySummaryButton } from "@/components/SendBirthdaySummaryButton";
+import { BIRTHDAY_REMINDER_TO } from "@/lib/birthdayReminder";
 
 type PersonWithGroups = {
   id: string;
@@ -47,6 +50,11 @@ export default async function PeoplePage() {
           <h1 className="font-display text-2xl text-clay-900">People</h1>
           <p className="mt-1 text-sm text-clay-700">
             Everyone tracked for small groups. Organize them into groups from Small Groups.
+          </p>
+          <p className="mt-2 text-xs text-clay-500">
+            Birthday reminders are emailed to {BIRTHDAY_REMINDER_TO} each morning there&rsquo;s one
+            today or a week away.{" "}
+            <SendBirthdaySummaryButton action={sendBirthdaySummaryNow} to="her" />
           </p>
         </div>
         <div className="flex items-center gap-3">

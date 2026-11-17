@@ -14,6 +14,7 @@ export const config = {
     // the real manifest/sw.js silently breaks installability.
     // /mcp is the bot endpoint: it authenticates itself with a token, and a
     // redirect to the login page would break every MCP client.
-    "/((?!_next/static|_next/image|favicon.ico|icon.png|brand/|manifest.webmanifest|sw.js|icons/|mcp(?:/|$)).*)",
+    // /api/cron/ is called by Vercel Cron with a secret, not a login.
+    "/((?!_next/static|_next/image|favicon.ico|icon.png|brand/|manifest.webmanifest|sw.js|icons/|mcp(?:/|$)|api/cron/).*)",
   ],
 };
